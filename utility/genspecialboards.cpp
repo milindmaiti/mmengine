@@ -1,3 +1,4 @@
+#include "../bitboard.h"
 #include "boardnotation.h"
 #include "macros.h"
 #include <iostream>
@@ -47,6 +48,12 @@ void no_ab_file() {
   print_bitboard(bitboard);
 }
 
+void bishop_occupancy_bits() {
+  for (int i = 0; i < BD; i++) {
+    for (int j = 0; j < BD; j++) {
+    }
+  }
+}
 #ifdef TEST_GENSPECIALBOARDS
 int main() {
   no_a_file();

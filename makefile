@@ -6,8 +6,8 @@ CPP_VERSION = -std=c++17
 CPPFLAGS = -g -Wall -Wunused -Werror -Wconversion -O2
 
 # Create final executable bitboard
-mmengine: bitboard.o boardnotation.o genspecialboards.o
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) bitboard.o boardnotation.o genspecialboards.o -o mmengine
+mmengine: bitboard.o boardnotation.o genspecialboards.o macros.o
+	$(CC) $(CPP_VERSION) $(CPPFLAGS) bitboard.o boardnotation.o genspecialboards.o macros.o -o mmengine
 
 # Compile bitboard into object file
 bitboard.o: bitboard.cpp
@@ -21,9 +21,15 @@ boardnotation.o: utility/boardnotation.cpp
 
 # Compile genspecialboards into object file
 genspecialboards.o: utility/genspecialboards.cpp
-	echo "Compiling the special board macros file"
+	echo "Compiling the special board file"
 	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c utility/genspecialboards.cpp -o genspecialboards.o
 
+# Compile the macros file int object file
+macros.o: utility/macros.cpp
+	echo "Compiling the macros file"
+	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c utility/macros.cpp -o macros.o
+
+# ---------------------- TESTING MAKE ----------------------
 # Creating the testing executable by linking .o files
 current_test: boardnotation.o test_genspecialboards.o
 	$(CC) $(CPP_VERSION) $(CPPFLAGS) test_genspecialboards.o boardnotation.o -o current_test 
