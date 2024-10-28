@@ -10,30 +10,30 @@ ull generate_bishop_moves_fly(int square, ull mask) {
 
   for (int curRank = rank + 1, curFile = file + 1;
        curRank < BD - 1 && curFile < BD - 1; curRank++, curFile++) {
+    attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
   for (int curRank = rank + 1, curFile = file - 1;
        curRank < BD - 1 && curFile > 0; curRank++, curFile--) {
+    attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
   for (int curRank = rank - 1, curFile = file + 1;
        curRank > 0 && curFile < BD - 1; curRank--, curFile++) {
+    attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
   for (int curRank = rank - 1, curFile = file - 1; curRank > 0 && curFile > 0;
        curRank--, curFile--) {
+    attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
   return attacks;

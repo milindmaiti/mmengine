@@ -1,40 +1,53 @@
-# Makefile for mmengine program
+# Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
+TARGET_EXEC := mmengine
+CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wunused -Werror 
+# Optionally add -02
+CXX = g++
 
-# Helpful flags and other variables
-CC = g++
-CPP_VERSION = -std=c++17
-CPPFLAGS = -g -Wall -Wunused -Werror -Wconversion -O2
+BUILD_DIR := ./build
+SRC_DIRS := ./bitboard ./movegen ./utility
 
-# Create final executable bitboard
-mmengine: bitboard.o boardnotation.o genspecialboards.o macros.o
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) bitboard.o boardnotation.o genspecialboards.o macros.o -o mmengine
+# Find all the C and C++ files we want to compile
+# Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
+SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 
-# Compile bitboard into object file
-bitboard.o: bitboard.cpp
-	echo "Compiling the bitboard file"
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c bitboard.cpp -o bitboard.o
+# Prepends BUILD_DIR and appends .o to every src file
+# As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-# Compile boardnotation into object file
-boardnotation.o: utility/boardnotation.cpp
-	echo "Compiling the board notation file"
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c utility/boardnotation.cpp -o boardnotation.o
+# String substitution (suffix version without %).
+# As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
+DEPS := $(OBJS:.o=.d)
 
-# Compile genspecialboards into object file
-genspecialboards.o: utility/genspecialboards.cpp
-	echo "Compiling the special board file"
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c utility/genspecialboards.cpp -o genspecialboards.o
+# Every folder in ./src will need to be passed to GCC so that it can find header files
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-# Compile the macros file int object file
-macros.o: utility/macros.cpp
-	echo "Compiling the macros file"
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) -c utility/macros.cpp -o macros.o
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-# ---------------------- TESTING MAKE ----------------------
-# Creating the testing executable by linking .o files
-current_test: boardnotation.o test_genspecialboards.o
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) test_genspecialboards.o boardnotation.o -o current_test 
+# The final build step.
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
-test_genspecialboards.o: utility/genspecialboards.cpp
-	$(CC) $(CPP_VERSION) $(CPPFLAGS) -DTEST_GENSPECIALBOARDS -c utility/genspecialboards.cpp -o test_genspecialboards.o
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# Build step for C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+
+.PHONY: clean
 clean:
-	rm -f *.o mmengine current_test
+	rm -r $(BUILD_DIR)
+
+# Include the .d makefiles. The - at the front suppresses the errors of missing
+# Makefiles. Initially, all the .d files will be missing, and we don't want those
+# errors to show up.
+-include $(DEPS)

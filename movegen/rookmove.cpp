@@ -10,25 +10,25 @@ ull generate_rook_moves_fly(int square, ull mask) {
   int file = (square % BD);
 
   for (int curRank = rank + 1; curRank < BD - 1; curRank++) {
+    attacks |= (1ULL << ((curRank << 3) + file));
     if (mask & (1ULL << ((curRank << 3) + file)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + file));
   }
 
   for (int curRank = rank - 1; curRank > 0; curRank--) {
+    attacks |= (1ULL << ((curRank << 3) + file));
     if (mask & (1ULL << ((curRank << 3) + file)))
       break;
-    attacks |= (1ULL << ((curRank << 3) + file));
   }
   for (int curFile = file + 1; curFile < BD - 1; curFile++) {
+    attacks |= (1ULL << ((rank << 3) + curFile));
     if (mask & (1ULL << ((rank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((rank << 3) + curFile));
   }
   for (int curFile = file - 1; curFile > 0; curFile--) {
+    attacks |= (1ULL << ((rank << 3) + curFile));
     if (mask & (1ULL << ((rank << 3) + curFile)))
       break;
-    attacks |= (1ULL << ((rank << 3) + curFile));
   }
 
   return attacks;
