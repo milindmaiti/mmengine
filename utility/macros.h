@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include <string>
 #ifndef MACROS_H
@@ -7,6 +8,7 @@
 #define BD 8
 #define NUM_SQ 64
 #define NUM_SIDES 2
+#define ASCII_SZ 256
 
 // Printing macros
 // clang-format off
@@ -20,7 +22,7 @@
 #define get_bit(bitboard, square) ((bitboard) & (1ULL << (square)))
 #define set_bit(bitboard, square) ((bitboard) |= (1ULL << (square)))
 #define pop_bit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
-#define toggle_bit(bitboard, square) ()
+#define toggle_bit(bitboard, square) ((bitboard) ^= (1ULL << (square)))
 
 // number of bitboards to represent full chess board
 #define NUM_BITBOARDS 12
@@ -40,13 +42,14 @@
 #define NO_HG_FILE 4557430888798830399ULL
 // algebraic notation to index lookup
 // clang-format off
-extern const std::string indexToSquare[];
-extern const int bishopRelevantBits[];
-extern const int rookRelevantBits[];
+extern const std::array<std::string, NUM_SQ> indexToSquare;
+extern const std::array<int,NUM_SQ> bishopRelevantBits;
+extern const std::array<int,NUM_SQ> rookRelevantBits;
 extern const std::string asciiPieces;
 extern const std::string unicodePieces;
-extern const int charPieces[];
-
+extern const std::array<int, ASCII_SZ> charPieces;
+extern const std::array<ull, NUM_SQ> rookMagics;
+extern const std::array<ull, NUM_SQ> bishopMagics;
 enum sliderPiece { rook, bishop };
 enum castling { wk = 1, wq = 2, bk = 4, bq = 8};
 enum pieces {P, N, B, R, Q, K, p, n, b, r, q, k};
@@ -61,7 +64,7 @@ a2, b2, c2, d2, e2, f2, g2, h2,
 a1, b1, c1, d1, e1, f1, g1, h1, NO_SQ 
 };
 enum colors{
-  white, black
+  white, black, both
 };
 // clang-format on
 #endif

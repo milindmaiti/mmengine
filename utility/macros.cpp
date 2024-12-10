@@ -1,6 +1,7 @@
 #include "macros.h"
+#include <array>
 #include <string>
-const std::string indexToSquare[] = {
+const std::array<std::string, NUM_SQ> indexToSquare = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "a7", "b7", "c7",
     "d7", "e7", "f7", "g7", "h7", "a6", "b6", "c6", "d6", "e6", "f6",
     "g6", "h6", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a4",
@@ -8,7 +9,9 @@ const std::string indexToSquare[] = {
     "e3", "f3", "g3", "h3", "a2", "b2", "c2", "d2", "e2", "f2", "g2",
     "h2", "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"};
 // clang-format off
-const int bishopRelevantBits[] = {
+
+// number of squares that a bishop attacks (not including edges of board since they have no squares behind)
+const std::array<int, NUM_SQ> bishopRelevantBits = {
   6, 5, 5, 5, 5, 5, 5, 6, 
 5, 5, 5, 5, 5, 5, 5, 5, 
 5, 5, 7, 7, 7, 7, 5, 5, 
@@ -19,7 +22,8 @@ const int bishopRelevantBits[] = {
 6, 5, 5, 5, 5, 5, 5, 6 
 };
 
-const int rookRelevantBits[] = {
+// number of squares that a rook attacks (not including edges of board since they have no squares behind)
+const std::array<int, NUM_SQ> rookRelevantBits = {
   12, 11, 11, 11, 11, 11, 11, 12, 
 11, 10, 10, 10, 10, 10, 10, 11, 
 11, 10, 10, 10, 10, 10, 10, 11, 
@@ -30,9 +34,74 @@ const int rookRelevantBits[] = {
 12, 11, 11, 11, 11, 11, 11, 12
 };
 // clang-format on
-const int charPieces[] = {
-    ['P'] = P, ['N'] = N, ['B'] = B, ['R'] = R, ['Q'] = Q, ['K'] = K,
-    ['p'] = p, ['n'] = n, ['b'] = b, ['r'] = r, ['q'] = q, ['k'] = k};
+
+// convert from character to enum value
+const std::array<int, ASCII_SZ> charPieces = [] {
+  std::array<int, ASCII_SZ> arr{};
+  arr['P'] = P;
+  arr['N'] = N;
+  arr['B'] = B;
+  arr['R'] = R;
+  arr['Q'] = Q;
+  arr['K'] = K;
+  arr['p'] = p;
+  arr['n'] = n;
+  arr['b'] = b;
+  arr['r'] = r;
+  arr['q'] = q;
+  arr['k'] = k;
+  return arr;
+}();
 
 const std::string asciiPieces = "PNBRQKpnbrqk";
 const std::string unicodePieces = u8"♙♘♗♖♕♔♟︎♞♝♜♛♚";
+
+/* pre-calculated rook magic numbers */
+const std::array<ull, NUM_SQ> rookMagics = {
+    0x5800840802010000ULL, 0x2040204000100000ULL, 0x8008502081448004ULL,
+    0x200200208c090000ULL, 0x2040142002001000ULL, 0xc840082042011800ULL,
+    0x9040092002880800ULL, 0x2012180049010000ULL, 0x2200104021830000ULL,
+    0x824040410a240000ULL, 0x1304001044108060ULL, 0xc04002010428007ULL,
+    0x14000400501008ULL,   0x200a002a0420000ULL,  0xa0802207004a8800ULL,
+    0x22488a10050000ULL,   0x24c0800000ULL,       0x40040820300ULL,
+    0x4010200005ULL,       0x4000009006404000ULL, 0x84040008145002ULL,
+    0x80002d12000ULL,      0x4080010000ULL,       0x860802400510400ULL,
+    0x40300080800000ULL,   0x420180030040000ULL,  0x83300200100ULL,
+    0x4000380034100005ULL, 0xc5400158400ULL,      0x4090081200420000ULL,
+    0x5024020800ULL,       0x80088620014000ULL,   0x4500042020120000ULL,
+    0x10000a4220c00000ULL, 0x6000021040080082ULL, 0x800404000ULL,
+    0x4800000460802000ULL, 0x40000482001400ULL,   0x1234000100808000ULL,
+    0xc000a01000ULL,       0x280024000828000ULL,  0x4014130040a40000ULL,
+    0x8a9002c8000ULL,      0x140001110010001ULL,  0x8100002040040011ULL,
+    0x640004204008000ULL,  0x88040302084c8000ULL, 0x80480908240a00ULL,
+    0x8002102040841400ULL, 0x4000100c8320400ULL,  0x200020211a00010ULL,
+    0x1400001a00509010ULL, 0x100000800440080ULL,  0x1000000402001200ULL,
+    0x88004910020080ULL,   0x802002700049040ULL,  0x801620400104024ULL,
+    0x1100008104004024ULL, 0x10020000c41ULL,      0x800014202c0004ULL,
+    0x800001004082002ULL,  0x120001016810a48ULL,  0x1100106208009104ULL,
+    0x2000000100b40042ULL};
+
+/* PRE-CALCULATED BISHOP MAGIC NUMBERS */
+const std::array<ull, NUM_SQ> bishopMagics = {
+    0x248081102450402ULL,  0x3810220821001118ULL, 0x802281044c100a0ULL,
+    0x8020424000208ULL,    0x4062021082100440ULL, 0x202404440200000cULL,
+    0x40c041e028040ULL,    0x2800808c01010110ULL, 0x9c08810a4008009ULL,
+    0x9081000c09004ULL,    0x40842444000100ULL,   0x1091840000000ULL,
+    0x8000011002008000ULL, 0x140089014000800ULL,  0x20201210000ULL,
+    0x804020104228000ULL,  0x3015002022012020ULL, 0x8301102811280200ULL,
+    0x50200c1080282000ULL, 0x884000a046009210ULL, 0x200009222008090ULL,
+    0x140210802080109ULL,  0x8ae40000ULL,         0x1080005484042280ULL,
+    0xa0806042040404a0ULL, 0x441100024628000ULL,  0x840220400924000ULL,
+    0x404002044002000ULL,  0x4800001014404020ULL, 0x200800440840400dULL,
+    0x40000e0210512405ULL, 0x20022200a8211104ULL, 0x6006202300a4ULL,
+    0x80010400b080a0ULL,   0x109040480001ULL,     0x1040000810040042ULL,
+    0x8881101008190000ULL, 0x8086828020ULL,       0x400004640001104cULL,
+    0x400404a082002000ULL, 0x80710008042ULL,      0xa80020825544000ULL,
+    0x45000024016010c0ULL, 0x1123000010440860ULL, 0x81001000b09000ULL,
+    0x2000310010a0000ULL,  0x10000844a2900104ULL, 0x1000421060410001ULL,
+    0x2220024802280000ULL, 0x14124200201ULL,      0x8030120896010880ULL,
+    0x14201240000ULL,      0xe000014044090100ULL, 0x4100044a908c0000ULL,
+    0x2101002104020ULL,    0x800800d1020101ULL,   0x200208022a2a00ULL,
+    0x1480080901140ULL,    0x44010004420200ULL,   0x5000800c01028200ULL,
+    0x1000100240250ULL,    0x802000802001a480ULL, 0x20000208c80900ULL,
+    0x800c0404820018ULL};

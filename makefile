@@ -1,11 +1,16 @@
 # Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
 TARGET_EXEC := mmengine
-CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wunused -Werror 
+TEST_TARGET := test
+
+CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wunused -Werror -Wno-reorder-ctor -O2
+LDFLAGS = -L/opt/homebrew/Cellar/googletest/1.15.2/lib -lgtest -lgtest_main -lpthread
+GTEST = -I/opt/homebrew/Cellar/googletest/1.15.2/include
 # Optionally add -02
 CXX = g++
 
 BUILD_DIR := ./build
-SRC_DIRS := ./bitboard ./movegen ./utility
+SRC_DIRS := ./bitboard ./movegen ./utility ./main
+TEST_DIRS := ./bitboard ./movegen ./utility ./tests
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
@@ -19,18 +24,24 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 # As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
 DEPS := $(OBJS:.o=.d)
 
+# Test-specific sources and objects
+TEST_SRCS := $(shell find $(TEST_DIRS) -name '*.cpp')
+TEST_OBJS := $(TEST_SRCS:%=$(BUILD_DIR)/%.o)
+TEST_DEPS := $(TEST_OBJS:.o=.d)
+
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 # Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+INC_FLAGS := $(addprefix -I,$(INC_DIRS)) $(GTEST)
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
+
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -42,6 +53,11 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+
+tests: $(BUILD_DIR)/$(TEST_TARGET)
+
+$(BUILD_DIR)/$(TEST_TARGET): $(TEST_OBJS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
 .PHONY: clean
 clean:

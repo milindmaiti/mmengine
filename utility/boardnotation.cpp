@@ -2,6 +2,7 @@
  * Prints squares in algebraic notation (a1, a2, ...) in
  * several different formats
  */
+#include "../bitboard/bitboard.h"
 #include "macros.h"
 #include <iostream>
 
@@ -55,7 +56,7 @@ void print_bitboard(ull bitboard) {
   std::cout << "\n";
 }
 
-void printBoard(ull *pieceBitboards, int side, int castle, int enpassant) {
+void printBoard(Game &game) {
   // loop through every square of the bitboard and print its value
   std::cout << "\n";
   for (int row = 0; row < BD; row++) {
@@ -68,7 +69,7 @@ void printBoard(ull *pieceBitboards, int side, int castle, int enpassant) {
       // iterate over all piece bitboards and check if that piece is on that
       // sqaure sqaure
       for (int piece = P; piece <= k; piece++)
-        if (get_bit(pieceBitboards[piece], square))
+        if (get_bit(game.pieceBitboards[piece], square))
           curPiece = piece;
 
       std::cout << (curPiece == -1 ? '.' : asciiPieces[curPiece]) << " ";
@@ -83,14 +84,16 @@ void printBoard(ull *pieceBitboards, int side, int castle, int enpassant) {
   }
   std::cout << "\n\n";
 
-  std::cout << "Side to move: " << (side ? "black" : "white") << "\n";
+  std::cout << "Side to move: " << (game.side ? "black" : "white") << "\n";
   std::cout << "Castling Rights: ";
-  std::cout << ((castle & 1) ? "wk " : "");
-  std::cout << ((castle & 2) ? "wq " : "");
-  std::cout << ((castle & 4) ? "bk " : "");
-  std::cout << ((castle & 8) ? "bq " : "");
+  std::cout << ((game.castle & 1) ? "wk " : "");
+  std::cout << ((game.castle & 2) ? "wq " : "");
+  std::cout << ((game.castle & 4) ? "bk " : "");
+  std::cout << ((game.castle & 8) ? "bq " : "");
   std::cout << "\n";
-  std::cout << "En Passant Square is: " << indexToSquare[enpassant] << "\n";
+  std::cout << "En Passant Square is: "
+            << (game.enPassant == -1 ? "None" : indexToSquare[game.enPassant])
+            << "\n";
   std::cout << "\n";
 }
 #ifdef TEST_BOARDNOTATION
