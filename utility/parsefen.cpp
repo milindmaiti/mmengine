@@ -3,8 +3,8 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-void parse_fen(Game &game, std::string &fen) {
-  // zero out attributes of the game such as piece palcements, side to move,
+void parse_fen(Game &game, const std::string &fen) {
+  // zero out attributes of the game such as piece placements, side to move,
   // etc.
   for (ull &bitboard : game.pieceBitboards)
     bitboard = 0;
@@ -41,7 +41,7 @@ void parse_fen(Game &game, std::string &fen) {
   // next char is guaranteed to be a space so skip
   fenPtr += 2;
 
-  // if neither side can castle move by 2
+  // if neither side can castle move pointer by 2
   if (fen[fenPtr] == '-') {
     fenPtr += 2;
   } else {
@@ -55,6 +55,7 @@ void parse_fen(Game &game, std::string &fen) {
         game.castle |= bk;
       else if (curPiece == q)
         game.castle |= bq;
+      fenPtr++;
     }
     // skip the space
     fenPtr++;
@@ -64,9 +65,9 @@ void parse_fen(Game &game, std::string &fen) {
   if (fen[fenPtr] == '-') {
     fenPtr += 2;
   } else {
-    int rank = fen[fenPtr] - 'a';
+    int file = fen[fenPtr] - 'a';
     fenPtr++;
-    int file = fen[fenPtr] - '1';
+    int rank = 7 - (fen[fenPtr] - '1');
     fenPtr++;
     int square = rank * 8 + file;
     game.enPassant = square;
@@ -76,6 +77,7 @@ void parse_fen(Game &game, std::string &fen) {
   // extract digits of halfMove clock
   while (isdigit(fen[fenPtr])) {
     game.halfMoves = game.halfMoves * 10 + fen[fenPtr] - '0';
+    fenPtr++;
   }
 
   fenPtr++;
@@ -83,12 +85,13 @@ void parse_fen(Game &game, std::string &fen) {
   // extract fullMoves number (need to check for end of string as well)
   while (fenPtr < (int)fen.size() && isdigit(fen[fenPtr])) {
     game.fullMoves = game.fullMoves * 10 + fen[fenPtr] - '0';
+    fenPtr++;
   }
 
   // copy all white pieces to the full white bitboard and same for black
-  for (int i = p; i <= k; i++)
-    game.occupancyBitboards[white] |= game.pieceBitboards[i];
   for (int i = P; i <= K; i++)
+    game.occupancyBitboards[white] |= game.pieceBitboards[i];
+  for (int i = p; i <= k; i++)
     game.occupancyBitboards[black] |= game.pieceBitboards[i];
 
   // copy all white + black pieces to full bitboard

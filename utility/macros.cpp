@@ -56,6 +56,16 @@ const std::array<int, ASCII_SZ> charPieces = [] {
 const std::string asciiPieces = "PNBRQKpnbrqk";
 const std::string unicodePieces = u8"♙♘♗♖♕♔♟︎♞♝♜♛♚";
 
+const std::string emptyPosition = "8/8/8/8/8/8/8/8 w - - 25 60";
+const std::string startPosition =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const std::string trickyPosition =
+    "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq b5 0 1";
+const std::string killerPosition =
+    "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1";
+const std::string cmkPosition =
+    "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9";
+
 /* pre-calculated rook magic numbers */
 const std::array<ull, NUM_SQ> rookMagics = {
     0x5800840802010000ULL, 0x2040204000100000ULL, 0x8008502081448004ULL,

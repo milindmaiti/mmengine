@@ -1,6 +1,7 @@
 #include "../bitboard/bitboard.h"
 #include "../utility/genspecialboards.h"
 #include "../utility/macros.h"
+#include "../utility/parsefen.h"
 int main() {
   Game chess = Game(rookMagics, bishopMagics);
   for (int square = a7; square <= h7; square++)
@@ -25,7 +26,11 @@ int main() {
   set_bit(chess.pieceBitboards[n], g1);
   set_bit(chess.pieceBitboards[r], a1);
   set_bit(chess.pieceBitboards[r], h1);
-  print_bitboard(chess.pieceBitboards[P]);
-  print_bitboard(chess.pieceBitboards[p]);
-  printBoard(chess);
+  /*print_bitboard(chess.pieceBitboards[P]);*/
+  /*print_bitboard(chess.pieceBitboards[p]);*/
+  /*printBoard(chess);*/
+
+  Game test;
+  parse_fen(test, trickyPosition);
+  printBoard(test);
 }

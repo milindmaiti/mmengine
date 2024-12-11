@@ -50,6 +50,13 @@ extern const std::string unicodePieces;
 extern const std::array<int, ASCII_SZ> charPieces;
 extern const std::array<ull, NUM_SQ> rookMagics;
 extern const std::array<ull, NUM_SQ> bishopMagics;
+extern const std::string emptyPosition;
+extern const std::string startPosition;
+extern const std::string trickyPosition;
+extern const std::string killerPosition;
+extern const std::string cmkPosition;
+
+
 enum sliderPiece { rook, bishop };
 enum castling { wk = 1, wq = 2, bk = 4, bq = 8};
 enum pieces {P, N, B, R, Q, K, p, n, b, r, q, k};

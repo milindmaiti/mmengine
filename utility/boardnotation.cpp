@@ -91,8 +91,10 @@ void printBoard(Game &game) {
   std::cout << ((game.castle & 4) ? "bk " : "");
   std::cout << ((game.castle & 8) ? "bq " : "");
   std::cout << "\n";
+
   std::cout << "En Passant Square is: "
-            << (game.enPassant == -1 ? "None" : indexToSquare[game.enPassant])
+            << (game.enPassant == NO_SQ ? "None"
+                                        : indexToSquare[game.enPassant])
             << "\n";
   std::cout << "\n";
 }
