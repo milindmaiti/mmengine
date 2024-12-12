@@ -1,3 +1,4 @@
+#pragma once
 #include "../bitboard/bitboard.h"
 #include <cassert>
 #include <string>

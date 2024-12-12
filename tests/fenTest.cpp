@@ -11,7 +11,7 @@ TEST(FenTest, StartPosition) {
   ull fullOccupancy = 0ULL;
   ull curWhite = 0ULL, curBlack = 0ULL;
 
-  Game game;
+  Game game(bishopMagics, rookMagics);
   // set starting position piece occupancies
   for (int i = a8; i <= h7; i++) {
     set_bit(fullOccupancy, i);
@@ -38,7 +38,7 @@ TEST(FenTest, EmptyPosition) {
   ull fullOccupancy = 0ULL;
   ull curWhite = 0ULL, curBlack = 0ULL;
   int castle = 0;
-  Game game;
+  Game game(rookMagics, bishopMagics);
 
   parse_fen(game, emptyPosition);
 
@@ -85,7 +85,7 @@ TEST(FenTest, TrickyPosition) {
   curBlack = (blackK | blackQ | blackB | blackN | blackR | blackP);
   fullOccupancy = (curWhite | curBlack);
   int curCastle = 15;
-  Game game;
+  Game game(bishopMagics, rookMagics);
 
   parse_fen(game, trickyPosition);
   EXPECT_EQ(game.occupancyBitboards[both], fullOccupancy);

@@ -1,8 +1,11 @@
-#ifndef BITBOARD
-#define BITBOARD
-
+#pragma once
+#include "../movegen/bishopmove.h"
+#include "../movegen/kingmove.h"
+#include "../movegen/knightmove.h"
+#include "../movegen/pawnmove.h"
+#include "../movegen/queenmove.h"
+#include "../movegen/rookmove.h"
 #include "../utility/macros.h"
-
 class Game {
 public:
   /*
@@ -75,12 +78,33 @@ public:
 
   void init_slider_attacks(int isBishop);
 
-  // returns a mask of squares a bishop can move to given other piece placement
-  inline ull get_bishop_attack(int square, ull occupancyMask);
+  inline ull is_square_attacked(int square, int side) {
 
-  // returns a mask of squares a rook can move to given other piece placement
-  inline ull get_rook_attack(int square, ull occupancyMask);
+    int oppositeSide = 1 - side;
+    if (pawnAttacks[square][oppositeSide] &
+        pieceBitboards[(side == white) ? P : p])
+      return true;
+    if (knightAttacks[square] & pieceBitboards[(side == white) ? N : n])
+      return true;
+    if (kingAttacks[square] & pieceBitboards[(side == white) ? K : k])
+      return true;
+    if (get_bishop_attack(square, occupancyBitboards[both], this->bishopMasks,
+                          this->bishopAttacks, this->bishopMagics) &
+        pieceBitboards[(side == white) ? B : b])
+      return true;
+    if (get_rook_attack(square, occupancyBitboards[both], this->rookMasks,
+                        this->rookAttacks, this->rookMagics) &
+        pieceBitboards[(side == white) ? R : r])
+      return true;
+    if (get_queen_attack(square, occupancyBitboards[both], this->rookMasks,
+                         this->rookAttacks, this->rookMagics, this->bishopMasks,
+                         this->bishopAttacks, this->bishopMagics) &
+        pieceBitboards[(side == white) ? Q : q])
+      return true;
 
+    return false;
+  }
+  void inline loop_attacks(int sourceSquare, ull attackBitboard, int piece);
+  void generate_moves();
   void init_all();
 };
-#endif

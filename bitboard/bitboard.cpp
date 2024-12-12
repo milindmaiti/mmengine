@@ -3,6 +3,7 @@
 #include "../movegen/kingmove.h"
 #include "../movegen/knightmove.h"
 #include "../movegen/pawnmove.h"
+#include "../movegen/queenmove.h"
 #include "../movegen/rookmove.h"
 #include "../utility/boardnotation.h"
 #include "../utility/genspecialboards.h"
@@ -19,18 +20,18 @@ Game::Game(std::array<ull, NUM_SQ> rookMagics,
       enPassant(enPassant), castle(castle), halfMoves(halfMoves),
       fullMoves(fullMoves), pieceBitboards(pieceBitboards),
       occupancyBitboards(occupancyBitboards) {
-  init_all();
+  init_leaper_attacks();
+  init_slider_attacks(rook);
+  init_slider_attacks(bishop);
 }
 
 Game::Game(int side, int enPassant, int castle, int halfMoves, int fullMoves,
            std::array<ull, NUM_BITBOARDS> pieceBitboards,
            std::array<ull, NUM_OCCUPANCIES> occupancyBitboards)
     : side(side), enPassant(enPassant), castle(castle), halfMoves(halfMoves),
-      fullMoves(fullMoves) {
-  pieceBitboards.fill(0);
-  occupancyBitboards.fill(0);
+      fullMoves(fullMoves), pieceBitboards(pieceBitboards),
+      occupancyBitboards(occupancyBitboards) {
   init_all();
-  init_magic_numbers();
 }
 
 // iterates over all subsets of a occupancy mask to prepare it for sliding
@@ -181,24 +182,216 @@ void Game::init_slider_attacks(int isBishop) {
   }
 }
 
-// returns a mask of squares a bishop can move to given other piece placement
-inline ull Game::get_bishop_attack(int square, ull occupancyMask) {
-  // take only the blocker bits from the mask
-  occupancyMask &= bishopMasks[square];
-  return bishopAttacks[square][(bishopMagics[square] * occupancyMask) >>
-                               (NUM_SQ - bishopRelevantBits[square])];
+inline void Game::loop_attacks(int sourceSquare, ull attackBitboard,
+                               int piece) {
+  int otherSide = 1 - this->side;
+  bool notPawn = (piece != p && piece != P);
+  // iterate over the attacked square and ensure opponent's pieces are
+  // present so capture is valid
+  while (attackBitboard) {
+    ull targetSquare = LSOneIndex(attackBitboard);
+    //  check if there is an enemy piece or is it empty
+    if (!get_bit(this->occupancyBitboards[both], targetSquare) && notPawn) {
+      std::cout << pieceMap[piece] << " quiet move "
+                << indexToSquare[sourceSquare] << "-"
+                << indexToSquare[targetSquare] << "\n";
+    } else if (get_bit(this->occupancyBitboards[otherSide], targetSquare)) {
+      std::cout << pieceMap[piece] << " capture move "
+                << indexToSquare[sourceSquare] << "-"
+                << indexToSquare[targetSquare] << "\n";
+    }
+    pop_bit(attackBitboard, targetSquare);
+  }
 }
 
-// returns a mask of squares a rook can move to given other piece placement
-inline ull Game::get_rook_attack(int square, ull occupancyMask) {
-  // take only the blocker bits from the mask
-  occupancyMask &= rookMasks[square];
-  return rookAttacks[square][(rookMagics[square] * occupancyMask) >>
-                             (NUM_SQ - rookRelevantBits[square])];
+void Game::generate_moves() {
+  // loop over all pieces
+
+  std::string curColor = side == white ? "white" : "black";
+  int otherSide = 1 - this->side;
+  int sourceSquare, targetSquare;
+  ull bitboardCopy, attackBitboard;
+  int lowerPiece = (side ? p : P);
+  int upperPiece = (side ? k : K);
+  for (int piece = lowerPiece; piece <= upperPiece; piece++) {
+
+    bitboardCopy = this->pieceBitboards[piece];
+    if (side == white) {
+      if (piece == P) {
+        // generate moves in front
+        while (bitboardCopy) {
+          // get LSB of pawn bitboard
+          sourceSquare = LSOneIndex(bitboardCopy);
+          // check if can move up by 1
+          targetSquare = sourceSquare - 8;
+          if (!get_bit(this->occupancyBitboards[both], targetSquare)) {
+            // check for promotion
+            if (sourceSquare >= a7 && sourceSquare <= h7)
+              std::cout << "White Pawn Promotion Move: "
+                        << indexToSquare[sourceSquare] << "-"
+                        << indexToSquare[targetSquare] << "\n";
+            else
+              std::cout << "White Pawn Quiet Move: "
+                        << indexToSquare[sourceSquare] << "-"
+                        << indexToSquare[targetSquare] << "\n";
+
+            // check if pawn can move twice
+            if (sourceSquare >= a2 && sourceSquare <= h2) {
+              targetSquare -= 8;
+              if (!get_bit(this->occupancyBitboards[both], targetSquare)) {
+                std::cout << "White Pawn Double Move: "
+                          << indexToSquare[sourceSquare] << "-"
+
+                          << indexToSquare[targetSquare] << "\n";
+              }
+            }
+          }
+
+          attackBitboard = pawnAttacks[sourceSquare][side];
+
+          loop_attacks(sourceSquare, attackBitboard, piece);
+          pop_bit(bitboardCopy, sourceSquare);
+        }
+      } else if (piece == K) {
+        sourceSquare = LSOneIndex(bitboardCopy);
+        if (sourceSquare && !is_square_attacked(e1, otherSide)) {
+          if ((wk & this->castle) &&
+              !get_bit(this->occupancyBitboards[both], f1) &&
+              !is_square_attacked(f1, black) &&
+              !get_bit(this->occupancyBitboards[both], g1)) {
+
+            std::cout << "White Kingside Castle"
+                      << "\n";
+          }
+          if ((wq & this->castle) &&
+              !get_bit(this->occupancyBitboards[both], d1) &&
+              !is_square_attacked(d1, black) &&
+              !get_bit(this->occupancyBitboards[both], c1) &&
+              !get_bit(this->occupancyBitboards[both], b1)) {
+
+            std::cout << "White Queenside Castle"
+                      << "\n";
+          }
+
+          // get all squares that the king aattacks
+          attackBitboard = kingAttacks[sourceSquare];
+          loop_attacks(sourceSquare, attackBitboard, piece);
+        }
+      }
+    } else if (side == black) {
+      if (piece == p) {
+        // generate moves in front
+        while (bitboardCopy) {
+          // get LSB of pawn bitboard
+          sourceSquare = LSOneIndex(bitboardCopy);
+          // check if can move up by 1
+          targetSquare = sourceSquare + 8;
+          if (!get_bit(this->occupancyBitboards[both], targetSquare)) {
+            // check for promotion
+            if (sourceSquare >= a2 && sourceSquare <= h2)
+              std::cout << "Black Pawn Promotion Move: "
+                        << indexToSquare[sourceSquare] << "-"
+                        << indexToSquare[targetSquare] << "\n";
+            else
+              std::cout << "Black Pawn Quiet Move: "
+                        << indexToSquare[sourceSquare] << "-"
+                        << indexToSquare[targetSquare] << "\n";
+
+            // check if pawn can move twice
+            if (sourceSquare >= a7 && sourceSquare <= h7) {
+              targetSquare += 8;
+              if (!get_bit(this->occupancyBitboards[both], targetSquare)) {
+                std::cout << "Black Pawn Double Move: "
+                          << indexToSquare[sourceSquare] << "-"
+
+                          << indexToSquare[targetSquare] << "\n";
+              }
+            }
+          }
+
+          attackBitboard = pawnAttacks[sourceSquare][side];
+
+          loop_attacks(sourceSquare, attackBitboard, piece);
+          pop_bit(bitboardCopy, sourceSquare);
+        }
+      } else if (piece == k) {
+        sourceSquare = LSOneIndex(bitboardCopy);
+        if (sourceSquare && !is_square_attacked(e8, otherSide)) {
+          if ((bk & this->castle) &&
+              !get_bit(this->occupancyBitboards[both], f8) &&
+              !is_square_attacked(f8, white) &&
+              !get_bit(this->occupancyBitboards[both], g8)) {
+
+            std::cout << "Black King Side Castle"
+                      << "\n";
+          }
+          if ((bq & this->castle) &&
+              !get_bit(this->occupancyBitboards[both], d8) &&
+              !is_square_attacked(d8, white) &&
+              !get_bit(this->occupancyBitboards[both], c8) &&
+              !get_bit(this->occupancyBitboards[both], b8)) {
+
+            std::cout << "Black Queen Side Castle"
+                      << "\n";
+          }
+
+          // get all squares that the king aattacks
+          attackBitboard = kingAttacks[sourceSquare];
+          loop_attacks(sourceSquare, attackBitboard, piece);
+        }
+      }
+    }
+
+    // can do all of the other pieces in one loop since no more special cases
+    // need to make sure we don't accidentally add king or pawn moves again
+    if (piece != (side ? p : P) && piece != (side ? k : K)) {
+      while (bitboardCopy) {
+        sourceSquare = LSOneIndex(bitboardCopy);
+
+        // get the appropriate attackBitboard
+        if (piece == (side ? n : N)) {
+          attackBitboard = knightAttacks[sourceSquare];
+        } else if (piece == (side ? b : B)) {
+          // and with the negation of you side's piece since you can't capture
+          // ur own pieces
+          attackBitboard =
+              get_bishop_attack(sourceSquare, this->occupancyBitboards[both],
+                                this->bishopMasks, this->bishopAttacks,
+                                this->bishopMagics) &
+              ~this->occupancyBitboards[side];
+        } else if (piece == (side ? r : R)) {
+          attackBitboard =
+              get_rook_attack(sourceSquare, this->occupancyBitboards[both],
+                              this->rookMasks, this->rookAttacks,
+                              this->rookMagics) &
+              ~this->occupancyBitboards[side];
+        } else if (piece == (side ? q : Q)) {
+          attackBitboard =
+              get_queen_attack(sourceSquare, this->occupancyBitboards[both],
+                               this->rookMasks, this->rookAttacks,
+                               this->rookMagics, this->bishopMasks,
+                               this->bishopAttacks, this->bishopMagics) &
+              ~this->occupancyBitboards[side];
+        }
+        loop_attacks(sourceSquare, attackBitboard, piece);
+        pop_bit(bitboardCopy, sourceSquare);
+      }
+    }
+  }
 }
+/**
+ * Checks to see if a square is attacked by side. It works by generating moves
+ * by different pieces of the opposite side's color, and then checking if the
+ * current side has any pieces there. For example, if the square is e3 and side
+ * is white, then the function will simulate a black pawn on e3, knight on e3,
+ * etc. and then get the squares that the piece is attacking (i.e. g2, c2, d1,
+ * etc. for the black knight). it will then check if there is a white piece on
+ * those squares, and return true if so. For slider pieces like rooks, it also
+ * takes into account the full occupancyBitboard
+ */
 
 void Game::init_all() {
-  /*init_magic_numbers();*/
+  init_magic_numbers();
   init_leaper_attacks();
   init_slider_attacks(rook);
   init_slider_attacks(bishop);

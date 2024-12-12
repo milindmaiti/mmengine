@@ -1,14 +1,14 @@
+#pragma once
 #include <array>
 #include <iostream>
 #include <string>
-#ifndef MACROS_H
-#define MACROS_H
 // Common sizes / expressions macros
 #define ull unsigned long long
 #define BD 8
 #define NUM_SQ 64
 #define NUM_SIDES 2
 #define ASCII_SZ 256
+#define NUM_PIECES 12
 
 // Printing macros
 // clang-format off
@@ -35,6 +35,7 @@
 
 // bit manipulation macros
 #define LSOne(S) ((S) & -(S))
+#define LSOneIndex(S) __builtin_ctzll(LSOne(S))
 // Special Board Definitions
 #define NO_H_FILE 9187201950435737471ULL
 #define NO_A_FILE 18374403900871474942ULL
@@ -55,7 +56,7 @@ extern const std::string startPosition;
 extern const std::string trickyPosition;
 extern const std::string killerPosition;
 extern const std::string cmkPosition;
-
+extern const std::array<std::string, NUM_PIECES> pieceMap;
 
 enum sliderPiece { rook, bishop };
 enum castling { wk = 1, wq = 2, bk = 4, bq = 8};
@@ -74,4 +75,3 @@ enum colors{
   white, black, both
 };
 // clang-format on
-#endif
