@@ -8,7 +8,7 @@
 #include <iostream>
 
 // prints a8, b8, ... in order without quotes
-void printNoQuotes() {
+void print_no_quotes() {
   for (int i = 7; i >= 0; i--) {
     for (int j = 0; j < 8; j++) {
       char file = static_cast<char>('a' + j);
@@ -19,7 +19,7 @@ void printNoQuotes() {
 }
 
 // prints a8, b8, ... in order with quotes
-void printQuotes() {
+void print_quotes() {
   for (int i = 7; i >= 0; i--) {
     for (int j = 0; j < 8; j++) {
       char file = static_cast<char>('a' + j);
@@ -57,7 +57,7 @@ void print_bitboard(ull bitboard) {
   std::cout << "\n";
 }
 
-void printBoard(Game &game) {
+void print_board(Game &game) {
   // loop through every square of the bitboard and print its value
   std::cout << "\n";
   for (int row = 0; row < BD; row++) {
@@ -101,7 +101,7 @@ void printBoard(Game &game) {
   std::cout << "\n";
 }
 
-void printMove(int move, int spacing) {
+void print_move(int move, int spacing) {
   int src = decode_src(move);
   int dst = decode_dst(move);
   int piece = decode_piece(move);
@@ -123,7 +123,7 @@ void printMove(int move, int spacing) {
             << std::setw(spacing) << (enPassant ? "Yes" : "No") << "\n";
 }
 
-void printMoves(std::vector<int> &moveList) {
+void print_moves(std::vector<int> &moveList) {
   std::cout << "\t\t ---------- MOVE LIST ----------\n\n";
   int spacing = 12;
   std::vector<std::string> categories = {"Source",     "Dest",     "Piece",
@@ -135,7 +135,7 @@ void printMoves(std::vector<int> &moveList) {
   std::cout << "\n\n";
 
   for (int move : moveList)
-    printMove(move, spacing);
+    print_move(move, spacing);
 
   std::cout << "\n";
   std::cout << "Number of Moves: " << moveList.size() << "\n";

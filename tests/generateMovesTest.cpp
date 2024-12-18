@@ -11,7 +11,7 @@ TEST(generateMoves, trickyPositionWhite) {
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq b5 0 1";
   parse_fen(chess, curPosition);
 
-  /*printBoard(chess);*/
+  /*print_board(chess);*/
   auto moveList = chess.generate_moves();
 
   std::vector<int> masterMovesList;
@@ -80,7 +80,7 @@ TEST(generateMoves, trickyPositionBlack) {
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq b5 0 1";
   parse_fen(chess, curPosition);
 
-  /*printBoard(chess);*/
+  /*print_board(chess);*/
   auto moveList = chess.generate_moves();
 
   std::vector<int> masterMovesList;
@@ -131,8 +131,8 @@ TEST(generateMoves, trickyPositionBlack) {
 
   sort(moveList.begin(), moveList.end());
   sort(masterMovesList.begin(), masterMovesList.end());
-  /*printMoves(moveList);*/
-  /*printMoves(masterMovesList);*/
+  /*print_moves(moveList);*/
+  /*print_moves(masterMovesList);*/
   ASSERT_EQ(moveList.size(), masterMovesList.size());
   for (int i = 0; i < (int)moveList.size(); i++) {
     EXPECT_EQ(moveList[i], masterMovesList[i]);
@@ -144,5 +144,5 @@ TEST(generateMoves, promotionTest) {
   Game game(rookMagics, bishopMagics);
   parse_fen(game, promoPosition);
   auto moveList = game.generate_moves();
-  printMoves(moveList);
+  print_moves(moveList);
 }

@@ -11,5 +11,5 @@ int main() {
   ull nodes = perftDriver(chess, captures, eps, castles, promotions, 1);
   std::cout << nodes << "\n";
   auto moves = chess.generate_moves();
-  printMoves(moves);
+  print_moves(moves);
 }

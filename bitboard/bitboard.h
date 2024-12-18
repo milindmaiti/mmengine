@@ -10,23 +10,23 @@
 class Game {
 public:
 #define copy_board()                                                           \
-  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = pieceBitboards;          \
+  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = this->pieceBitboards;    \
   std::array<ull, NUM_OCCUPANCIES> copyOccupancyBitboards =                    \
-      occupancyBitboards;                                                      \
-  int copySide = side;                                                         \
-  int copyEnPassant = enPassant;                                               \
-  int copyCastle = castle;                                                     \
-  int copyHalfMoves = halfMoves;                                               \
-  int copyFullMoves = fullMoves;
+      this->occupancyBitboards;                                                \
+  int copySide = this->side;                                                   \
+  int copyEnPassant = this->enPassant;                                         \
+  int copyCastle = this->castle;                                               \
+  int copyHalfMoves = this->halfMoves;                                         \
+  int copyFullMoves = this->fullMoves;
 
 #define pop_copy()                                                             \
-  pieceBitboards = copyPieceBitboards;                                         \
-  occupancyBitboards = copyOccupancyBitboards;                                 \
-  side = copySide;                                                             \
-  enPassant = copyEnPassant;                                                   \
-  castle = copyCastle;                                                         \
-  halfMoves = copyHalfMoves;                                                   \
-  fullMoves = copyFullMoves;
+  this->pieceBitboards = copyPieceBitboards;                                   \
+  this->occupancyBitboards = copyOccupancyBitboards;                           \
+  this->side = copySide;                                                       \
+  this->enPassant = copyEnPassant;                                             \
+  this->castle = copyCastle;                                                   \
+  this->halfMoves = copyHalfMoves;                                             \
+  this->fullMoves = copyFullMoves;
   /*
    * ---- BOARD REPRESENTATION ----
    * We will have 12 pieceBitboard for pieces

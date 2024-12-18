@@ -2,9 +2,9 @@
 #include "../bitboard/bitboard.h"
 #include "macros.h"
 
-void printNoQuotes();
-void printQuotes();
+void print_no_quotes();
+void print_quotes();
 void print_bitboard(ull bitboard);
-void printBoard(Game &game);
-void printMoves(std::vector<int> &moveList);
-void printMove(int move);
+void print_board(Game &game);
+void print_moves(std::vector<int> &moveList);
+void print_move(int move);

@@ -21,17 +21,17 @@ TEST(makeMoves, trickyPosition) {
 
   ASSERT_EQ(chess.makeMove(curMove, false), true);
   ASSERT_EQ(chess.makeMove(encode_move(a6, e2, b, 0, 0, 1, 0, 0), true), true);
-  /*printBoard(chess);*/
+  /*print_board(chess);*/
 
   chess = Game(rookMagics, bishopMagics);
   curPosition =
       "r3k2r/p2pqpb1/bn2pnp1/2pPN3/1p2P3/2N2Q1p/PPPB1PPP/R2BK2R w KQkq c6 0 1";
   parse_fen(chess, curPosition);
   auto moveList = chess.generate_moves();
-  /*printBoard(chess);*/
-  /*printMoves(moveList);*/
+  /*print_board(chess);*/
+  /*print_moves(moveList);*/
 
   int enPassantMove = encode_move(d5, c6, P, 0, 0, 0, 0, 1);
   ASSERT_EQ(chess.makeMove(enPassantMove, false), true);
-  /*printBoard(chess);*/
+  /*print_board(chess);*/
 }

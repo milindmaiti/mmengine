@@ -24,6 +24,24 @@
 #define pop_bit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 #define toggle_bit(bitboard, square) ((bitboard) ^= (1ULL << (square)))
 
+#define copy_current_board()                                                   \
+  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = game.pieceBitboards;     \
+  std::array<ull, NUM_OCCUPANCIES> copyOccupancyBitboards =                    \
+      game.occupancyBitboards;                                                 \
+  int copySide = game.side;                                                    \
+  int copyEnPassant = game.enPassant;                                          \
+  int copyCastle = game.castle;                                                \
+  int copyHalfMoves = game.halfMoves;                                          \
+  int copyFullMoves = game.fullMoves;
+
+#define pop_current_copy()                                                     \
+  game.pieceBitboards = copyPieceBitboards;                                    \
+  game.occupancyBitboards = copyOccupancyBitboards;                            \
+  game.side = copySide;                                                        \
+  game.enPassant = copyEnPassant;                                              \
+  game.castle = copyCastle;                                                    \
+  game.halfMoves = copyHalfMoves;                                              \
+  game.fullMoves = copyFullMoves;
 // move encoding/decoding macros
 #define encode_move(src, dst, piece, promotion, castle, capture, doublePush,   \
                     enPassant)                                                 \
