@@ -529,6 +529,10 @@ int Game::makeMove(int move, bool onlyCapture) {
     }
   }
 }
+void Game::search_position(int depth) {
+  if (depth)
+    std::cout << "bestmove d2d4" << std::endl;
+}
 void Game::init_all() {
   init_magic_numbers();
   init_leaper_attacks();

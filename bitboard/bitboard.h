@@ -134,5 +134,6 @@ public:
                            std::vector<int> &moveList);
   std::vector<int> generate_moves();
   int makeMove(int move, bool onlyCapture);
+  void search_position(int depth);
   void init_all();
 };
