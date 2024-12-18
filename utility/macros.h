@@ -24,6 +24,25 @@
 #define pop_bit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 #define toggle_bit(bitboard, square) ((bitboard) ^= (1ULL << (square)))
 
+// move encoding/decoding macros
+#define encode_move(src, dst, piece, promotion, castle, capture, doublePush,   \
+                    enPassant)                                                 \
+  ((src) + (1 << 6) * (dst) + (1 << 12) * (piece) + (1 << 16) * (promotion) +  \
+   (1 << 20) * (castle) + (1 << 21) * (capture) + (1 << 22) * (doublePush) +   \
+   (1 << 23) * (enPassant))
+
+// move decoding macros
+#define decode_src(move) ((move) & 0x3F)
+#define decode_dst(move) (((move) & 0xFC0) >> 6)
+#define decode_piece(move) (((move) & 0xF000) >> 12)
+#define decode_promotion(move) (((move) & 0xF0000) >> 16)
+#define decode_castle(move) (((move) & 0x100000) >> 20)
+#define decode_capture(move) (((move) & 0x200000) >> 21)
+#define decode_double_push(move) (((move) & 0x400000) >> 22)
+#define decode_en_passant(move) (((move) & 0x800000) >> 23)
+
+// the value for no promotion when encoding/decoding
+#define NO_PROMOTION 15
 // number of bitboards to represent full chess board
 #define NUM_BITBOARDS 12
 // 3 occupancies boards for black, white, and full
@@ -47,7 +66,7 @@ extern const std::array<std::string, NUM_SQ> indexToSquare;
 extern const std::array<int,NUM_SQ> bishopRelevantBits;
 extern const std::array<int,NUM_SQ> rookRelevantBits;
 extern const std::string asciiPieces;
-extern const std::string unicodePieces;
+extern const std::array<std::string, NUM_PIECES> unicodePieces;
 extern const std::array<int, ASCII_SZ> charPieces;
 extern const std::array<ull, NUM_SQ> rookMagics;
 extern const std::array<ull, NUM_SQ> bishopMagics;
@@ -57,6 +76,7 @@ extern const std::string trickyPosition;
 extern const std::string killerPosition;
 extern const std::string cmkPosition;
 extern const std::array<std::string, NUM_PIECES> pieceMap;
+extern const std::array<int, NUM_SQ> castleMasks;
 
 enum sliderPiece { rook, bishop };
 enum castling { wk = 1, wq = 2, bk = 4, bq = 8};
@@ -74,4 +94,5 @@ a1, b1, c1, d1, e1, f1, g1, h1, NO_SQ
 enum colors{
   white, black, both
 };
+
 // clang-format on

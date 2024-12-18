@@ -6,8 +6,27 @@
 #include "../movegen/queenmove.h"
 #include "../movegen/rookmove.h"
 #include "../utility/macros.h"
+#include <vector>
 class Game {
 public:
+#define copy_board()                                                           \
+  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = pieceBitboards;          \
+  std::array<ull, NUM_OCCUPANCIES> copyOccupancyBitboards =                    \
+      occupancyBitboards;                                                      \
+  int copySide = side;                                                         \
+  int copyEnPassant = enPassant;                                               \
+  int copyCastle = castle;                                                     \
+  int copyHalfMoves = halfMoves;                                               \
+  int copyFullMoves = fullMoves;
+
+#define pop_copy()                                                             \
+  pieceBitboards = copyPieceBitboards;                                         \
+  occupancyBitboards = copyOccupancyBitboards;                                 \
+  side = copySide;                                                             \
+  enPassant = copyEnPassant;                                                   \
+  castle = copyCastle;                                                         \
+  halfMoves = copyHalfMoves;                                                   \
+  fullMoves = copyFullMoves;
   /*
    * ---- BOARD REPRESENTATION ----
    * We will have 12 pieceBitboard for pieces
@@ -78,6 +97,16 @@ public:
 
   void init_slider_attacks(int isBishop);
 
+  /**
+   * Checks to see if a square is attacked by side. It works by generating moves
+   * by different pieces of the opposite side's color, and then checking if the
+   * current side has any pieces there. For example, if the square is e3 and
+   * side is white, then the function will simulate a black pawn on e3, knight
+   * on e3, etc. and then get the squares that the piece is attacking (i.e. g2,
+   * c2, d1, etc. for the black knight). it will then check if there is a white
+   * piece on those squares, and return true if so. For slider pieces like
+   * rooks, it also takes into account the full occupancyBitboard
+   */
   inline ull is_square_attacked(int square, int side) {
 
     int oppositeSide = 1 - side;
@@ -90,21 +119,20 @@ public:
       return true;
     if (get_bishop_attack(square, occupancyBitboards[both], this->bishopMasks,
                           this->bishopAttacks, this->bishopMagics) &
-        pieceBitboards[(side == white) ? B : b])
+        (pieceBitboards[(side == white) ? B : b] |
+         pieceBitboards[(side == white) ? Q : q]))
       return true;
     if (get_rook_attack(square, occupancyBitboards[both], this->rookMasks,
                         this->rookAttacks, this->rookMagics) &
-        pieceBitboards[(side == white) ? R : r])
-      return true;
-    if (get_queen_attack(square, occupancyBitboards[both], this->rookMasks,
-                         this->rookAttacks, this->rookMagics, this->bishopMasks,
-                         this->bishopAttacks, this->bishopMagics) &
-        pieceBitboards[(side == white) ? Q : q])
+        (pieceBitboards[(side == white) ? R : r] |
+         pieceBitboards[(side == white) ? Q : q]))
       return true;
 
     return false;
   }
-  void inline loop_attacks(int sourceSquare, ull attackBitboard, int piece);
-  void generate_moves();
+  void inline loop_attacks(int sourceSquare, ull attackBitboard, int piece,
+                           std::vector<int> &moveList);
+  std::vector<int> generate_moves();
+  int makeMove(int move, bool onlyCapture);
   void init_all();
 };

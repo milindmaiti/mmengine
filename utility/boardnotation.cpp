@@ -4,6 +4,7 @@
  */
 #include "../bitboard/bitboard.h"
 #include "macros.h"
+#include <iomanip>
 #include <iostream>
 
 // prints a8, b8, ... in order without quotes
@@ -67,12 +68,13 @@ void printBoard(Game &game) {
       int square = BD * row + col;
       int curPiece = -1;
       // iterate over all piece bitboards and check if that piece is on that
-      // sqaure sqaure
+      // sqaure
       for (int piece = P; piece <= k; piece++)
         if (get_bit(game.pieceBitboards[piece], square))
           curPiece = piece;
 
-      std::cout << (curPiece == -1 ? '.' : asciiPieces[curPiece]) << " ";
+      /*std::cout << (curPiece == -1 ? '.' : asciiPieces[curPiece]) << " ";*/
+      std::cout << (curPiece == -1 ? "." : unicodePieces[curPiece]) << " ";
     }
     std::cout << "\n";
   }
@@ -98,6 +100,43 @@ void printBoard(Game &game) {
             << "\n";
   std::cout << "\n";
 }
-#ifdef TEST_BOARDNOTATION
-int main() { printQuotes(); }
-#endif
+
+void printMove(int move, int spacing) {
+  int src = decode_src(move);
+  int dst = decode_dst(move);
+  int piece = decode_piece(move);
+  int promo = decode_promotion(move);
+  int castle = decode_castle(move);
+  int capture = decode_capture(move);
+  int doublePush = decode_double_push(move);
+  int enPassant = decode_en_passant(move);
+
+  std::cout << std::left << std::setw(spacing) << indexToSquare[src]
+            << std::setw(spacing) << indexToSquare[dst] << std::setw(spacing)
+            << asciiPieces[piece] << std::setw(spacing)
+            << ((promo == 0) ? std::string("None")
+                             : std::string(1, asciiPieces[promo]))
+            << std::setw(spacing) << (castle ? "Yes" : "No")
+
+            << std::setw(spacing) << (capture ? "Yes" : "No")
+            << std::setw(spacing) << (doublePush ? "Yes" : "No")
+            << std::setw(spacing) << (enPassant ? "Yes" : "No") << "\n";
+}
+
+void printMoves(std::vector<int> &moveList) {
+  std::cout << "\t\t ---------- MOVE LIST ----------\n\n";
+  int spacing = 12;
+  std::vector<std::string> categories = {"Source",     "Dest",     "Piece",
+                                         "PromoPiece", "Castle",   "Capture",
+                                         "DoublePush", "EnPassant"};
+  for (std::string &cat : categories) {
+    std::cout << std::left << std::setw(spacing) << cat;
+  }
+  std::cout << "\n\n";
+
+  for (int move : moveList)
+    printMove(move, spacing);
+
+  std::cout << "\n";
+  std::cout << "Number of Moves: " << moveList.size() << "\n";
+}

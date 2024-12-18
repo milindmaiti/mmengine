@@ -2,7 +2,7 @@
 TARGET_EXEC := mmengine
 TEST_TARGET := test
 
-CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wunused -Werror -Wno-reorder-ctor -O2
+CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wunused -Werror -Wno-reorder-ctor -Ofast
 LDFLAGS = -L/opt/homebrew/Cellar/googletest/1.15.2/lib -lgtest -lgtest_main -lpthread
 GTEST = -I/opt/homebrew/Cellar/googletest/1.15.2/include
 # Optionally add -02

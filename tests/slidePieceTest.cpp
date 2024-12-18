@@ -27,6 +27,32 @@ TEST(PieceTest, BishopTest) {
   for (int move : moves)
     set_bit(ans, move);
   ASSERT_EQ(ans, pred);
+
+  occupancyMask = 0ULL;
+  set_bit(occupancyMask, h7);
+  set_bit(occupancyMask, b1);
+  set_bit(occupancyMask, a6);
+  set_bit(occupancyMask, f1);
+  ans = 0ULL;
+  pred = get_bishop_attack(d3, occupancyMask, chess.bishopMasks,
+                           chess.bishopAttacks, chess.bishopMagics);
+  moves = {a6, b5, c4, c2, b1, e2, f1, e4, f5, g6, h7};
+  for (int move : moves)
+    set_bit(ans, move);
+  ASSERT_EQ(ans, pred);
+
+  occupancyMask = 0ULL;
+  set_bit(occupancyMask, g6);
+  set_bit(occupancyMask, b1);
+  set_bit(occupancyMask, a6);
+  set_bit(occupancyMask, f1);
+  ans = 0ULL;
+  pred = get_bishop_attack(d3, occupancyMask, chess.bishopMasks,
+                           chess.bishopAttacks, chess.bishopMagics);
+  moves = {a6, b5, c4, c2, b1, e2, f1, e4, f5, g6};
+  for (int move : moves)
+    set_bit(ans, move);
+  ASSERT_EQ(ans, pred);
 }
 
 TEST(PieceTest, RookTest) {
@@ -48,6 +74,19 @@ TEST(PieceTest, RookTest) {
   pred = get_rook_attack(a1, occupancyMask, chess.rookMasks, chess.rookAttacks,
                          chess.rookMagics);
   moves = {a2, a3, a4, a5, a6, a7, a8, b1, c1, d1, e1, f1, g1, h1};
+  for (int move : moves)
+    set_bit(ans, move);
+  ASSERT_EQ(ans, pred);
+
+  occupancyMask = 0ULL;
+  ans = 0ULL;
+  set_bit(occupancyMask, d8);
+  set_bit(occupancyMask, b4);
+  set_bit(occupancyMask, f4);
+  set_bit(occupancyMask, d2);
+  pred = get_rook_attack(d4, occupancyMask, chess.rookMasks, chess.rookAttacks,
+                         chess.rookMagics);
+  moves = {b4, c4, d5, d6, d7, d8, e4, f4, d3, d2};
   for (int move : moves)
     set_bit(ans, move);
   ASSERT_EQ(ans, pred);

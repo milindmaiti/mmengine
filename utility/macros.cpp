@@ -22,6 +22,18 @@ const std::array<int, NUM_SQ> bishopRelevantBits = {
 6, 5, 5, 5, 5, 5, 5, 6 
 };
 
+// mask to and the castle flags with every move
+const std::array<int, NUM_SQ> castleMasks = {
+  7, 15, 15, 15, 3, 15, 15, 11,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  15, 15, 15, 15, 15, 15, 15, 15,
+  13, 15, 15, 15, 12, 15, 15, 14
+};
+
 // number of squares that a rook attacks (not including edges of board since they have no squares behind)
 const std::array<int, NUM_SQ> rookRelevantBits = {
   12, 11, 11, 11, 11, 11, 11, 12, 
@@ -59,7 +71,8 @@ const std::array<std::string, NUM_PIECES> pieceMap = {
     "Black Bishop", "Black Rook",   "Black Queen",  "Black King"};
 
 const std::string asciiPieces = "PNBRQKpnbrqk";
-const std::string unicodePieces = u8"♙♘♗♖♕♔♟︎♞♝♜♛♚";
+const std::array<std::string, NUM_PIECES> unicodePieces = {
+    "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
 const std::string emptyPosition = "8/8/8/8/8/8/8/8 w - - 25 60";
 const std::string startPosition =
