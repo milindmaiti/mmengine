@@ -46,10 +46,10 @@ void parse_position(Game &game, std::string &command) {
     parse_fen(game, startPosition);
   }
 
-  if (commandPtr < (int)command.size() &&
-      command.substr(commandPtr, 5) == "moves") {
+  size_t pos = command.find("moves", commandPtr);
+  if (pos != std::string::npos) {
     // skip to actual moves
-    commandPtr += 6;
+    commandPtr = pos + 6;
     std::stringstream moveStream(
         command.substr(commandPtr, command.size() - commandPtr));
 

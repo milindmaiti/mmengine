@@ -1,7 +1,7 @@
 #include "macros.h"
 #include <array>
 #include <string>
-const std::array<std::string, NUM_SQ> indexToSquare = {
+extern const std::array<std::string, NUM_SQ> indexToSquare = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8", "a7", "b7", "c7",
     "d7", "e7", "f7", "g7", "h7", "a6", "b6", "c6", "d6", "e6", "f6",
     "g6", "h6", "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", "a4",
@@ -11,7 +11,7 @@ const std::array<std::string, NUM_SQ> indexToSquare = {
 // clang-format off
 
 // number of squares that a bishop attacks (not including edges of board since they have no squares behind)
-const std::array<int, NUM_SQ> bishopRelevantBits = {
+extern const std::array<int, NUM_SQ> bishopRelevantBits = {
   6, 5, 5, 5, 5, 5, 5, 6, 
 5, 5, 5, 5, 5, 5, 5, 5, 
 5, 5, 7, 7, 7, 7, 5, 5, 
@@ -23,7 +23,7 @@ const std::array<int, NUM_SQ> bishopRelevantBits = {
 };
 
 // mask to and the castle flags with every move
-const std::array<int, NUM_SQ> castleMasks = {
+extern const std::array<int, NUM_SQ> castleMasks = {
   7, 15, 15, 15, 3, 15, 15, 11,
   15, 15, 15, 15, 15, 15, 15, 15,
   15, 15, 15, 15, 15, 15, 15, 15,
@@ -35,7 +35,7 @@ const std::array<int, NUM_SQ> castleMasks = {
 };
 
 // number of squares that a rook attacks (not including edges of board since they have no squares behind)
-const std::array<int, NUM_SQ> rookRelevantBits = {
+extern const std::array<int, NUM_SQ> rookRelevantBits = {
   12, 11, 11, 11, 11, 11, 11, 12, 
 11, 10, 10, 10, 10, 10, 10, 11, 
 11, 10, 10, 10, 10, 10, 10, 11, 
@@ -45,10 +45,37 @@ const std::array<int, NUM_SQ> rookRelevantBits = {
 11, 10, 10, 10, 10, 10, 10, 11, 
 12, 11, 11, 11, 11, 11, 11, 12
 };
+
+extern const std::array<int, NUM_SQ> squareMirror = {
+  a1, b1, c1, d1, e1, f1, g1, h1,
+  a2, b2, c2, d2, e2, f2, g2, h2,
+  a3, b3, c3, d3, e3, f3, g3, h3,
+  a4, b4, c4, d4, e4, f4, g4, h4,
+  a5, b5, c5, d5, e5, f5, g5, h5,
+  a6, b6, c6, d6, e6, f6, g6, h6,
+  a7, b7, c7, d7, e7, f7, g7, h7,
+  a8, b8, c8, d8, e8, f8, g8, h8
+};
+
 // clang-format on
 
+extern const std::array<int, NUM_PIECES> materialScores = {
+    100,   // white pawn score
+    300,   // white knight scrore
+    350,   // white bishop score
+    500,   // white rook score
+    900,   // white queen score
+    10000, // white king score
+    -100,  // black pawn score
+    -300,  // black knight scrore
+    -350,  // black bishop score
+    -500,  // black rook score
+    -900,  // black queen score
+    -10000 // black king score
+};
+
 // convert from character to enum value
-const std::array<int, ASCII_SZ> charPieces = [] {
+extern const std::array<int, ASCII_SZ> charPieces = [] {
   std::array<int, ASCII_SZ> arr{};
   arr['P'] = P;
   arr['N'] = N;
@@ -65,27 +92,27 @@ const std::array<int, ASCII_SZ> charPieces = [] {
   return arr;
 }();
 
-const std::array<std::string, NUM_PIECES> pieceMap = {
+extern const std::array<std::string, NUM_PIECES> pieceMap = {
     "White Pawn",   "White Knight", "White Bishop", "White Rook",
     "White Queen",  "White King",   "Black Pawn",   "Black Knight",
     "Black Bishop", "Black Rook",   "Black Queen",  "Black King"};
 
-const std::string asciiPieces = "PNBRQKpnbrqk";
-const std::array<std::string, NUM_PIECES> unicodePieces = {
+extern const std::string asciiPieces = "PNBRQKpnbrqk";
+extern const std::array<std::string, NUM_PIECES> unicodePieces = {
     "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
-const std::string emptyPosition = "8/8/8/8/8/8/8/8 w - - 25 60";
-const std::string startPosition =
+extern const std::string emptyPosition = "8/8/8/8/8/8/8/8 w - - 25 60";
+extern const std::string startPosition =
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-const std::string trickyPosition =
+extern const std::string trickyPosition =
     "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq b5 0 1";
-const std::string killerPosition =
+extern const std::string killerPosition =
     "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1";
-const std::string cmkPosition =
+extern const std::string cmkPosition =
     "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9";
 
 /* pre-calculated rook magic numbers */
-const std::array<ull, NUM_SQ> rookMagics = {
+extern const std::array<ull, NUM_SQ> rookMagics = {
     2341876309508014080ULL, 18031991769276416ULL,   36063981659521032ULL,
     2341876788436668416ULL, 144132788852099104ULL,  216173881793711104ULL,
     36029896538980864ULL,   72059934795710598ULL,   9147937288372228ULL,
@@ -110,7 +137,7 @@ const std::array<ull, NUM_SQ> rookMagics = {
     288525083925301378ULL};
 
 /* pre-calculated bishop magic numbers */
-const std::array<ull, NUM_SQ> bishopMagics = {
+extern const std::array<ull, NUM_SQ> bishopMagics = {
     10134490747900416ULL,    9044584900363264ULL,     4613938385454628868ULL,
     2316064352785956870ULL,  36328139060191496ULL,    869338352325788161ULL,
     181307277255643392ULL,   5068750785155076ULL,     290615271654449ULL,

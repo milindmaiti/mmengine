@@ -83,6 +83,7 @@
 extern const std::array<std::string, NUM_SQ> indexToSquare;
 extern const std::array<int,NUM_SQ> bishopRelevantBits;
 extern const std::array<int,NUM_SQ> rookRelevantBits;
+extern const std::array<int, NUM_PIECES> materialScores;
 extern const std::string asciiPieces;
 extern const std::array<std::string, NUM_PIECES> unicodePieces;
 extern const std::array<int, ASCII_SZ> charPieces;
@@ -95,6 +96,7 @@ extern const std::string killerPosition;
 extern const std::string cmkPosition;
 extern const std::array<std::string, NUM_PIECES> pieceMap;
 extern const std::array<int, NUM_SQ> castleMasks;
+extern const std::array<int, NUM_SQ> squareMirror;
 
 enum sliderPiece { rook, bishop };
 enum castling { wk = 1, wq = 2, bk = 4, bq = 8};

@@ -9,8 +9,8 @@ GTEST = -I/opt/homebrew/Cellar/googletest/1.15.2/include
 CXX = g++
 
 BUILD_DIR := ./build
-SRC_DIRS := ./bitboard ./movegen ./utility ./main ./uci
-TEST_DIRS := ./bitboard ./movegen ./utility ./tests ./uci
+SRC_DIRS := ./bitboard ./movegen ./utility ./main ./uci ./search
+TEST_DIRS := ./bitboard ./movegen ./utility ./tests ./uci ./search
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
