@@ -13,6 +13,25 @@
 #include <iostream>
 #include <vector>
 
+#define copy_board()                                                           \
+  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = this->pieceBitboards;    \
+  std::array<ull, NUM_OCCUPANCIES> copyOccupancyBitboards =                    \
+      this->occupancyBitboards;                                                \
+  int copySide = this->side;                                                   \
+  int copyEnPassant = this->enPassant;                                         \
+  int copyCastle = this->castle;                                               \
+  int copyHalfMoves = this->halfMoves;                                         \
+  int copyFullMoves = this->fullMoves;
+
+#define pop_copy()                                                             \
+  this->pieceBitboards = copyPieceBitboards;                                   \
+  this->occupancyBitboards = copyOccupancyBitboards;                           \
+  this->side = copySide;                                                       \
+  this->enPassant = copyEnPassant;                                             \
+  this->castle = copyCastle;                                                   \
+  this->halfMoves = copyHalfMoves;                                             \
+  this->fullMoves = copyFullMoves;
+
 Game::Game(std::array<ull, NUM_SQ> rookMagics,
            std::array<ull, NUM_SQ> bishopMagics, int side, int enPassant,
            int castle, int halfMoves, int fullMoves,
@@ -436,102 +455,93 @@ std::vector<int> Game::generate_moves() {
 
 int Game::makeMove(int move, bool onlyCapture) {
 
-  if (onlyCapture) {
-    if (!decode_capture(move))
-      return 0;
-    else
-      return makeMove(move, false);
-  } else {
-    copy_board();
-    int src = decode_src(move);
-    int dst = decode_dst(move);
-    int piece = decode_piece(move);
-    int promo = decode_promotion(move);
-    int castle = decode_castle(move);
-    int capture = decode_capture(move);
-    int doublePush = decode_double_push(move);
-    int enPassant = decode_en_passant(move);
-    pop_bit(this->pieceBitboards[piece], src);
-    set_bit(this->pieceBitboards[piece], dst);
-    this->castle &= castleMasks[src];
-    this->castle &= castleMasks[dst];
-    // if a piece is capture pop it out of the corresponding bitboard
-    if (capture) {
-      int lowerPiece, higherPiece;
-      if (side == white) {
-        lowerPiece = p, higherPiece = q;
-      } else {
-        lowerPiece = P, higherPiece = Q;
-      }
-      for (int capturedPiece = lowerPiece; capturedPiece <= higherPiece;
-           capturedPiece++) {
-        if (get_bit(this->pieceBitboards[capturedPiece], dst)) {
-          pop_bit(this->pieceBitboards[capturedPiece], dst);
-          break;
-        }
-      }
-    }
-    // if there's a promotion replace the dst square with the promoted piece
-    if (((piece == P) && (dst >= a8 && dst <= h8)) ||
-        ((piece == p) && (dst >= a1 && dst <= h1))) {
-      pop_bit(this->pieceBitboards[piece], dst);
-      set_bit(this->pieceBitboards[promo], dst);
-    }
-
-    // remove the opposite side pawn if enpassant move has been played
-    if (enPassant) {
-      pop_bit(this->pieceBitboards[(side == white ? p : P)],
-              this->enPassant + (side == white ? 8 : -8));
-    }
-
-    this->enPassant = NO_SQ;
-    // set the enpassant square appropriately depending on how the pawn moves
-    if (doublePush) {
-      this->enPassant = dst + ((this->side == white) ? 8 : -8);
-    }
-    // move the rook to complete castling
-    if (castle) {
-      if (dst == g1) {
-        pop_bit(this->pieceBitboards[R], h1);
-        set_bit(this->pieceBitboards[R], f1);
-      } else if (dst == c1) {
-        pop_bit(this->pieceBitboards[R], a1);
-        set_bit(this->pieceBitboards[R], d1);
-      } else if (dst == g8) {
-        pop_bit(this->pieceBitboards[r], h8);
-        set_bit(this->pieceBitboards[r], f8);
-      } else {
-        pop_bit(this->pieceBitboards[r], a8);
-        set_bit(this->pieceBitboards[r], d8);
-      }
-    }
-
-    // copy all white pieces to the full white bitboard and same for black
-
-    this->occupancyBitboards[white] = this->occupancyBitboards[black] =
-        this->occupancyBitboards[both] = 0ULL;
-    for (int i = P; i <= K; i++)
-      this->occupancyBitboards[white] |= this->pieceBitboards[i];
-    for (int i = p; i <= k; i++)
-      this->occupancyBitboards[black] |= this->pieceBitboards[i];
-
-    // copy all white + black pieces to full bitboard
-    this->occupancyBitboards[both] =
-        (this->occupancyBitboards[white] | this->occupancyBitboards[black]);
-
-    if (is_square_attacked(
-            LSOneIndex(this->pieceBitboards[(side == white) ? K : k]), !side)) {
-      pop_copy();
-      return 0;
+  if (onlyCapture && !decode_capture(move))
+    return 0;
+  copy_board();
+  int src = decode_src(move);
+  int dst = decode_dst(move);
+  int piece = decode_piece(move);
+  int promo = decode_promotion(move);
+  int castle = decode_castle(move);
+  int capture = decode_capture(move);
+  int doublePush = decode_double_push(move);
+  int enPassant = decode_en_passant(move);
+  pop_bit(this->pieceBitboards[piece], src);
+  set_bit(this->pieceBitboards[piece], dst);
+  this->castle &= castleMasks[src];
+  this->castle &= castleMasks[dst];
+  // if a piece is capture pop it out of the corresponding bitboard
+  if (capture) {
+    int lowerPiece, higherPiece;
+    if (side == white) {
+      lowerPiece = p, higherPiece = q;
     } else {
-      side = !side;
-      return 1;
+      lowerPiece = P, higherPiece = Q;
+    }
+    for (int capturedPiece = lowerPiece; capturedPiece <= higherPiece;
+         capturedPiece++) {
+      if (get_bit(this->pieceBitboards[capturedPiece], dst)) {
+        pop_bit(this->pieceBitboards[capturedPiece], dst);
+        break;
+      }
     }
   }
-}
-void Game::search_position(int depth) {
-  if (depth)
-    std::cout << "bestmove d2d4" << std::endl;
+  // if there's a promotion replace the dst square with the promoted piece
+  if (((piece == P) && (dst >= a8 && dst <= h8)) ||
+      ((piece == p) && (dst >= a1 && dst <= h1))) {
+    pop_bit(this->pieceBitboards[piece], dst);
+    set_bit(this->pieceBitboards[promo], dst);
+  }
+
+  // remove the opposite side pawn if enpassant move has been played
+  if (enPassant) {
+    pop_bit(this->pieceBitboards[(side == white ? p : P)],
+            this->enPassant + (side == white ? 8 : -8));
+  }
+
+  this->enPassant = NO_SQ;
+  // set the enpassant square appropriately depending on how the pawn moves
+  if (doublePush) {
+    this->enPassant = dst + ((this->side == white) ? 8 : -8);
+  }
+  // move the rook to complete castling
+  if (castle) {
+    if (dst == g1) {
+      pop_bit(this->pieceBitboards[R], h1);
+      set_bit(this->pieceBitboards[R], f1);
+    } else if (dst == c1) {
+      pop_bit(this->pieceBitboards[R], a1);
+      set_bit(this->pieceBitboards[R], d1);
+    } else if (dst == g8) {
+      pop_bit(this->pieceBitboards[r], h8);
+      set_bit(this->pieceBitboards[r], f8);
+    } else {
+      pop_bit(this->pieceBitboards[r], a8);
+      set_bit(this->pieceBitboards[r], d8);
+    }
+  }
+
+  // copy all white pieces to the full white bitboard and same for black
+
+  this->occupancyBitboards[white] = this->occupancyBitboards[black] =
+      this->occupancyBitboards[both] = 0ULL;
+  for (int i = P; i <= K; i++)
+    this->occupancyBitboards[white] |= this->pieceBitboards[i];
+  for (int i = p; i <= k; i++)
+    this->occupancyBitboards[black] |= this->pieceBitboards[i];
+
+  // copy all white + black pieces to full bitboard
+  this->occupancyBitboards[both] =
+      (this->occupancyBitboards[white] | this->occupancyBitboards[black]);
+
+  if (is_square_attacked(
+          LSOneIndex(this->pieceBitboards[(side == white) ? K : k]), !side)) {
+    pop_copy();
+    return 0;
+  } else {
+    side = !side;
+    return 1;
+  }
 }
 void Game::init_all() {
   init_magic_numbers();
@@ -539,3 +549,6 @@ void Game::init_all() {
   init_slider_attacks(rook);
   init_slider_attacks(bishop);
 }
+
+#undef copy_board
+#undef pop_copy

@@ -9,24 +9,6 @@
 #include <vector>
 class Game {
 public:
-#define copy_board()                                                           \
-  std::array<ull, NUM_BITBOARDS> copyPieceBitboards = this->pieceBitboards;    \
-  std::array<ull, NUM_OCCUPANCIES> copyOccupancyBitboards =                    \
-      this->occupancyBitboards;                                                \
-  int copySide = this->side;                                                   \
-  int copyEnPassant = this->enPassant;                                         \
-  int copyCastle = this->castle;                                               \
-  int copyHalfMoves = this->halfMoves;                                         \
-  int copyFullMoves = this->fullMoves;
-
-#define pop_copy()                                                             \
-  this->pieceBitboards = copyPieceBitboards;                                   \
-  this->occupancyBitboards = copyOccupancyBitboards;                           \
-  this->side = copySide;                                                       \
-  this->enPassant = copyEnPassant;                                             \
-  this->castle = copyCastle;                                                   \
-  this->halfMoves = copyHalfMoves;                                             \
-  this->fullMoves = copyFullMoves;
   /*
    * ---- BOARD REPRESENTATION ----
    * We will have 12 pieceBitboard for pieces
@@ -134,6 +116,5 @@ public:
                            std::vector<int> &moveList);
   std::vector<int> generate_moves();
   int makeMove(int move, bool onlyCapture);
-  void search_position(int depth);
   void init_all();
 };
