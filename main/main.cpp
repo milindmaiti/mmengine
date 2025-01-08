@@ -6,6 +6,8 @@
 #include "../utility/macros.h"
 #include "../utility/parsefen.h"
 #include "../utility/perft.h"
+#include "../utility/timerutility.h"
+#include <csignal>
 #include <cstdio>
 
 using std::cout;
@@ -29,6 +31,45 @@ int getCapturedPiece2(int move, Game &game) {
 int main() {
   Game chess(rookMagics, bishopMagics);
   Engine engine(128);
+
+  parse_fen(chess, trickyPosition);
+  ull time1 = getMilliseconds();
+  auto ret = engine.searchPosition(chess, 6);
+  ull time2 = getMilliseconds();
+  cout << "Time Elapsed: " << time2 - time1 << "\n";
+  // testing speed of different methods
+  /*parse_fen(chess, killerPosition);*/
+  /*print_board(chess);*/
+  /*ull startTime = getMilliseconds();*/
+  /*int depth = 5;*/
+  /*iterativeReturn ret = engine.searchPosition(chess, depth);*/
+  /*ull endTime = getMilliseconds();*/
+  /*cout << "Time Taken: " << (double)(endTime - startTime) / 1000 << "s\n";*/
+  /**/
+  /*for (int i = 0; i < (int)ret.evals.size(); i++) {*/
+  /*  std::cout << "info score cp " << ret.evals[i] << " depth " << i + 1*/
+  /*            << " nodes " << ret.nodeCounts[i] << " pv ";*/
+  /*  for (int j = 0; j <= i; j++) {*/
+  /*    std::cout << moveToUciMove(ret.pvs[i][j]) << " ";*/
+  /*  }*/
+  /*  std::cout << "\n";*/
+  /*}*/
+  /**/
+  /*parse_fen(chess, cmkPosition);*/
+  /*print_board(chess);*/
+  /*startTime = getMilliseconds();*/
+  /*ret = engine.searchPosition(chess, depth);*/
+  /*endTime = getMilliseconds();*/
+  /*cout << "Time Taken: " << (double)(endTime - startTime) / 1000 << "s\n";*/
+  /**/
+  /*for (int i = 0; i < (int)ret.evals.size(); i++) {*/
+  /*  std::cout << "info score cp " << ret.evals[i] << " depth " << i + 1*/
+  /*            << " nodes " << ret.nodeCounts[i] << " pv ";*/
+  /*  for (int j = 0; j <= i; j++) {*/
+  /*    std::cout << moveToUciMove(ret.pvs[i][j]) << " ";*/
+  /*  }*/
+  /*  std::cout << "\n";*/
+  /*}*/
   /*std::string pos =*/
   /*    "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0
    * 9";*/
@@ -63,7 +104,7 @@ int main() {
   /*     << "\n";*/
   /*print_board(chess);*/
 
-  uciLoop(chess, engine);
+  /*uciLoop(chess, engine);*/
   /*ull captures = 0, eps = 0, castles = 0, promotions = 0;*/
   /*ull nodes = perftDriver(chess, captures, eps, castles, promotions, 1);*/
   /*std::cout << nodes << "\n";*/

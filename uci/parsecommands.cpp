@@ -74,12 +74,18 @@ void parse_go(Game &game, std::string &command, Engine &engine) {
   } else {
     depth = 6;
   }
-  int bstMove;
-  ull nodes = 0;
-  int evaluation = engine.searchPosition(game, depth, bstMove, nodes);
-  std::cout << "info score cp " << evaluation << " depth " << depth << " nodes "
-            << nodes << "\n";
-  std::cout << "bestmove " << moveToUciMove(bstMove) << std::endl;
+  iterativeReturn ret = engine.searchPosition(game, depth);
+  for (int i = 0; i < (int)ret.evals.size(); i++) {
+    std::cout << "info score cp " << ret.evals[i] << " depth " << i + 1
+              << " nodes " << ret.nodeCounts[i] << " pv ";
+    for (int j = 0; j <= i; j++) {
+      std::cout << moveToUciMove(ret.pvs[i][j]) << " ";
+    }
+    std::cout << "\n";
+  }
+
+  std::cout << "\n";
+  std::cout << "bestmove " << moveToUciMove(engine.pvTable[0][0]) << std::endl;
 }
 
 void uciLoop(Game &game, Engine &engine) {
