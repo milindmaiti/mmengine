@@ -14,10 +14,14 @@ public:
   int killerNum;
   int ply;
   int MXHISTORY;
+  int FullDepthMoves;
+  int reductionLimit;
+  bool followPv;
   vector<vector<int>> killerMoves;
   vector<vector<int>> historyMoves;
   vector<vector<int>> pvTable;
-  Engine(int mxdepth, int killernum = 2, int mxhist = 100);
+  Engine(int mxdepth = 128, int killernum = 2, int mxhist = 100,
+         int fullmoves = 4, int redlimit = 3);
   int evaluateMove(int move, Game &game);
   int negamax(Game &game, int depth, int alpha, int beta, int initialDepth,
               ull &nodes);

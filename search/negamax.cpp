@@ -5,6 +5,7 @@
 #include "../utility/macros.h"
 #include "evaluation.h"
 #include <algorithm>
+#include <cassert>
 #include <climits>
 #include <cstdio>
 #include <ios>
@@ -14,12 +15,18 @@ using std::vector;
 static int INF = 1e5;
 const int startMx = 1e9;
 
-Engine::Engine(int mxdepth, int killernum, int mxhist)
+Engine::Engine(int mxdepth, int killernum, int mxhist, int fullmoves,
+               int redlimit)
     : mxDepth(mxdepth), killerNum(killernum), ply(0), MXHISTORY(mxhist),
+      FullDepthMoves(fullmoves), reductionLimit(redlimit), followPv(false),
       killerMoves(this->killerNum, vector<int>(this->mxDepth)),
       historyMoves(NUM_PIECES, vector<int>(NUM_SQ)),
       pvTable(this->mxDepth, vector<int>(this->mxDepth)) {}
 int Engine::evaluateMove(int move, Game &game) {
+  // give largest bonus to best variation found in previous search
+  if (this->followPv && move == this->pvTable[0][ply]) {
+    return 20000;
+  }
   if (decode_capture(move)) {
 
     int lowerPiece, higherPiece;
@@ -138,32 +145,51 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
 
   // if king is in check increase depth since it is very possible to get mated
   // if depth isn't increased
-  /*depth += inCheck;*/
+  if (inCheck && ply < mxDepth - depth)
+    depth++;
   copy_current_board();
   int numMoves = 0;
+  // copy the follow pv flag because we need to reset it after each move is
+  // tried
+  bool copyFollow = this->followPv;
+  bool foundPv = false;
   for (int move : moveList) {
-    ply++;
-    if (!game.makeMove(move, false))
+    if (move != this->pvTable[0][ply]) {
+      this->followPv = false;
+    }
+    if (!game.makeMove(move, false)) {
       continue;
-    ply--;
+    }
+    ply++;
     numMoves++;
-    int evaluation =
-        -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
+    int evaluation;
+    // if we have found our principal variation move, do a null window search on
+    // the other moves
+    if (foundPv) {
+      // do a cheap search to see if there is possibly a better node (relies on
+      // good move ordering)
+      evaluation =
+          -negamax(game, depth - 1, -alpha - 1, -alpha, initialDepth, nodes);
+      // if the move could be better than pv move then do a full search
+      if (evaluation > alpha && evaluation < beta)
+        evaluation =
+            -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
+    } else
+      evaluation =
+          -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
+    ply--;
     // fail-soft alpha-beta (returned value can be outside alpha beta cutoffs)
     if (evaluation > alpha) {
       alpha = evaluation;
       // update best move
-
-      int pvdepth = initialDepth - depth;
-      if (pvdepth < (int)this->pvTable.size()) {
-
-        this->pvTable[pvdepth][pvdepth] = move;
-        for (int nextDepth = pvdepth + 1;
+      foundPv = true;
+      if (ply < (int)this->pvTable.size()) {
+        this->pvTable[ply][ply] = move;
+        for (int nextDepth = ply + 1;
              nextDepth <= std::min(initialDepth, (int)this->pvTable.size());
              nextDepth++) {
 
-          this->pvTable[pvdepth][nextDepth] =
-              this->pvTable[pvdepth + 1][nextDepth];
+          this->pvTable[ply][nextDepth] = this->pvTable[ply + 1][nextDepth];
         }
       }
 
@@ -188,8 +214,11 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
           this->killerMoves[1][ply] = move;
         }
       }
+      // huge bug fix, make sure to pop in all control paths
+      pop_current_copy();
       return alpha;
     }
+    this->followPv = copyFollow;
     pop_current_copy();
   }
   if (numMoves == 0) {
@@ -215,6 +244,7 @@ iterativeReturn Engine::searchPosition(Game &game, int depth) {
 
   iterativeReturn ret;
   for (int curDepth = 1; curDepth <= depth; curDepth++) {
+    followPv = true;
     ull nodes = 0;
     int eval = negamax(game, curDepth, -startMx, startMx, curDepth, nodes);
     ret.nodeCounts.push_back(nodes);

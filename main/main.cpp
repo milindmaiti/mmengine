@@ -32,11 +32,11 @@ int main() {
   Game chess(rookMagics, bishopMagics);
   Engine engine(128);
 
-  parse_fen(chess, trickyPosition);
-  ull time1 = getMilliseconds();
-  auto ret = engine.searchPosition(chess, 6);
-  ull time2 = getMilliseconds();
-  cout << "Time Elapsed: " << time2 - time1 << "\n";
+  /*parse_fen(chess, trickyPosition);*/
+  /*ull time1 = getMilliseconds();*/
+  /*auto ret = engine.searchPosition(chess, 6);*/
+  /*ull time2 = getMilliseconds();*/
+  /*cout << "Time Elapsed: " << time2 - time1 << "\n";*/
   // testing speed of different methods
   /*parse_fen(chess, killerPosition);*/
   /*print_board(chess);*/
@@ -104,7 +104,7 @@ int main() {
   /*     << "\n";*/
   /*print_board(chess);*/
 
-  /*uciLoop(chess, engine);*/
+  uciLoop(chess, engine);
   /*ull captures = 0, eps = 0, castles = 0, promotions = 0;*/
   /*ull nodes = perftDriver(chess, captures, eps, castles, promotions, 1);*/
   /*std::cout << nodes << "\n";*/
