@@ -161,19 +161,36 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
       continue;
     }
     ply++;
-    numMoves++;
     int evaluation;
     // if we have found our principal variation move, do a null window search on
     // the other moves
     if (foundPv) {
       // do a cheap search to see if there is possibly a better node (relies on
       // good move ordering)
-      evaluation =
-          -negamax(game, depth - 1, -alpha - 1, -alpha, initialDepth, nodes);
-      // if the move could be better than pv move then do a full search
-      if (evaluation > alpha && evaluation < beta)
+
+      // if the move is not a check, capture, promotion, or castle, and we still
+      // have a lot more depth to recurse and we've already considered the top 4
+      // moves, then do a smaller search with one less depth to test if a move
+      // could be good or not
+      if (inCheck == false && decode_capture(move) == 0 &&
+          decode_promotion(move) == 0 && decode_castle(move) == 0 &&
+          depth >= this->reductionLimit && numMoves >= this->FullDepthMoves) {
+
         evaluation =
-            -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
+            -negamax(game, depth - 2, -alpha - 1, -alpha, initialDepth, nodes);
+      } else
+        // a little hack to make sure the next if is executed
+        evaluation = alpha + 1;
+      if (evaluation > alpha) {
+        // do a full depth search still with a zero window to test if a move is
+        // better than alpha
+        evaluation =
+            -negamax(game, depth - 1, -alpha - 1, -alpha, initialDepth, nodes);
+        // if the move could be better than pv move then do a full search
+        if (evaluation > alpha && evaluation < beta)
+          evaluation =
+              -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
+      }
     } else
       evaluation =
           -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
@@ -204,6 +221,7 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
                 abs(clampedBonus) / MXHISTORY;
       }
     }
+    numMoves++;
     if (alpha >= beta) {
       // update killer moves so that these moves will be checked first in
       // sibling nodes
@@ -225,7 +243,7 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
     // current side is checkmated (provide bonus for shorter checkmates)
     // depth variable decreases with each recursive call
     if (inCheck) {
-      return -INF + (initialDepth - depth);
+      return -INF + ply;
     }
     // stalemate
     else
