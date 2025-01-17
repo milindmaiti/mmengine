@@ -1,6 +1,7 @@
 *.o
 *.out
 *.dSYM/
+.DS_Store
 build
 .cache
 compile_commands.json

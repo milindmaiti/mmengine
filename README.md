@@ -1,0 +1,1 @@
+A bitboard based chessengine that supports the UCI protocol. Implements magic bitboards for move generation and tree-search based on alpha beta pruning. Advanced pruning features include Null Move Pruning, Killer Move Heuristic, History Move Heuristic, Principal Variation Search, and more.
