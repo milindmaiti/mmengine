@@ -12,13 +12,15 @@
 #include <numeric>
 
 using std::vector;
-static int INF = 1e5;
+static int INF = 1e7;
+static int stopINF = 1e9;
 const int startMx = 1e9;
 
 Engine::Engine(int mxdepth, int killernum, int mxhist, int fullmoves,
-               int redlimit)
+               int redlimit, int windowsz)
     : mxDepth(mxdepth), killerNum(killernum), ply(0), MXHISTORY(mxhist),
-      FullDepthMoves(fullmoves), reductionLimit(redlimit), followPv(false),
+      FullDepthMoves(fullmoves), reductionLimit(redlimit), windowSize(windowsz),
+      followPv(false), nullVar(false),
       killerMoves(this->killerNum, vector<int>(this->mxDepth)),
       historyMoves(NUM_PIECES, vector<int>(NUM_SQ)),
       pvTable(this->mxDepth, vector<int>(this->mxDepth)) {}
@@ -74,6 +76,8 @@ int getCapturedPiece(int move, Game &game) {
   return -1;
 };
 int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
+  if (this->stopFlag != nullptr && *this->stopFlag)
+    return stopINF;
   nodes++;
   int eval = evaluatePosition(game);
   alpha = std::max(alpha, eval);
@@ -102,18 +106,52 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
   return alpha;
 }
 
+inline bool noZug(Game &game) {
+  if (game.pieceBitboards[Q] || game.pieceBitboards[q] ||
+      game.pieceBitboards[R] || game.pieceBitboards[r] ||
+      game.pieceBitboards[B] || game.pieceBitboards[b])
+    return true;
+  return false;
+}
 int Engine::negamax(Game &game, int depth, int alpha, int beta,
                     int initialDepth, ull &nodes) {
 
+  if (this->stopFlag != nullptr && *this->stopFlag)
+    return stopINF;
   // reached the leaf nodes so activate quiesenceSearch
   // evaluatePosition returns evaluation relative to color
   if (depth == 0) {
     return quiesenceSearch(game, alpha, beta, nodes);
   }
+  copy_current_board();
   nodes++;
   int inCheck = game.is_square_attacked(
       LSOneIndex(game.pieceBitboards[(game.side == white) ? K : k]),
       !game.side);
+
+  // null-move pruning - try to throw a move away and see if we get a beta
+  // cutoff i.e. if side to move is up a rook, this position is likely too good
+  // anyway need to be careful of zugzwang though, so don't do it in positions
+  // without rook, bishop, and queen (knights also vulnerable to zugzwang)
+  // additionally ensure that we don't have multiple null-move prunes in a row
+  // otherwise we might not even search
+  // obviously make sure we are not in check as well
+  if (this->nullVar == false && !inCheck && this->ply > 0 &&
+      depth >= this->reductionLimit && noZug(game)) {
+    this->nullVar = true;
+    game.enPassant = NO_SQ;
+    game.side = !game.side;
+    int evaluation =
+        -negamax(game, depth - 2, -alpha - 1, -alpha, initialDepth, nodes);
+
+    this->nullVar = false;
+    // ensure we pop copy in all paths
+    pop_current_copy();
+    if (evaluation >= beta)
+      return beta;
+  }
+
+  this->nullVar = false;
   auto moveList = game.generate_moves();
 
   // Pre-calculating scores for every move seems to be a lot slower
@@ -147,7 +185,6 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   // if depth isn't increased
   if (inCheck && ply < mxDepth - depth)
     depth++;
-  copy_current_board();
   int numMoves = 0;
   // copy the follow pv flag because we need to reset it after each move is
   // tried
@@ -162,12 +199,14 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
     }
     ply++;
     int evaluation;
+    // Principal Variation Search
     // if we have found our principal variation move, do a null window search on
     // the other moves
     if (foundPv) {
       // do a cheap search to see if there is possibly a better node (relies on
       // good move ordering)
 
+      // Late Move Reduction
       // if the move is not a check, capture, promotion, or castle, and we still
       // have a lot more depth to recurse and we've already considered the top 4
       // moves, then do a smaller search with one less depth to test if a move
@@ -252,7 +291,7 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   return alpha;
 }
 
-iterativeReturn Engine::searchPosition(Game &game, int depth) {
+void Engine::searchPosition(Game &game, int depth, iterativeReturn &ret) {
   for (int i = 0; i < (int)this->pvTable.size(); i++) {
     std::fill(this->pvTable[i].begin(), this->pvTable[i].end(), 0);
   }
@@ -260,14 +299,27 @@ iterativeReturn Engine::searchPosition(Game &game, int depth) {
     std::fill(this->historyMoves[i].begin(), this->historyMoves[i].end(), 0);
   }
 
-  iterativeReturn ret;
+  int alpha = -startMx;
+  int beta = startMx;
   for (int curDepth = 1; curDepth <= depth; curDepth++) {
-    followPv = true;
+    this->followPv = true;
+    this->nullVar = true;
     ull nodes = 0;
-    int eval = negamax(game, curDepth, -startMx, startMx, curDepth, nodes);
-    ret.nodeCounts.push_back(nodes);
-    ret.evals.push_back(eval);
-    ret.pvs.push_back(this->pvTable[0]);
+    int eval = negamax(game, curDepth, alpha, beta, curDepth, nodes);
+    // aspiration windows (Doesn't seem to reduce nodes but need to do more
+    // testing)
+    /*if (eval < alpha || eval > beta) {*/
+    /*  eval = negamax(game, curDepth, -startMx, startMx, curDepth, nodes);*/
+    /*}*/
+    /*alpha = eval - this->windowSize;*/
+    /*beta = eval + this->windowSize;*/
+
+    if (this->stopFlag == nullptr || !(*this->stopFlag)) {
+      ret.nodeCounts.push_back(nodes);
+      ret.evals.push_back(eval);
+      ret.pvs.push_back(this->pvTable[0]);
+    } else {
+      break;
+    }
   }
-  return ret;
 }

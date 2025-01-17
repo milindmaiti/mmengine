@@ -2,11 +2,15 @@
 #include "../search/negamax.h"
 #include "../utility/boardnotation.h"
 #include "../utility/macros.h"
+#include "../utility/timerutility.h"
 #include "parsefen.h"
 #include <cctype>
+#include <chrono>
 #include <cstdio>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <thread>
 
 std::string moveToUciMove(int move) {
   int moveSrc = decode_src(move);
@@ -63,18 +67,44 @@ void parse_position(Game &game, std::string &command) {
   /*print_board(game);*/
 }
 
+// Refactor Method to use threads for move timing
 void parse_go(Game &game, std::string &command, Engine &engine) {
   int depth = -1;
   int commandPtr = 0;
   // skip over the go keyword
   commandPtr += 3;
-  if (command.substr(commandPtr, 5) == "depth") {
+  iterativeReturn ret;
+  std::thread searchThread;
+  if (command.substr(commandPtr, 5) == "wtime") {
+    int wtime = 0, btime = 0, winc = 0, binc = 0;
+  } else if (command.substr(commandPtr, 5) == "depth") {
+    // we are not using a timer so set stop flag to null
+    engine.stopFlag = nullptr;
     commandPtr += 6;
+    // parse depth
     depth = stoi(command.substr(commandPtr, command.size() - commandPtr));
-  } else {
-    depth = 6;
+    std::thread searchThread(&Engine::searchPosition, &engine, std::ref(game),
+                             depth, std::ref(ret));
+    searchThread.join();
+  } else if (command.substr(commandPtr, 8) == "movetime") {
+    commandPtr += 9;
+    // some large depth value which will never finish to simulate running until
+    // stopping
+    depth = 100;
+    // parse time in milliseconds
+    std::chrono::milliseconds movetime(
+        stoi(command.substr(commandPtr, command.size() - commandPtr)));
+    // a shared ptr to a boolean flag with which the timer tells the search
+    // thread to stop
+    auto stopFlag = std::make_shared<std::atomic<bool>>(false);
+    engine.stopFlag = stopFlag;
+    std::thread timerThread(threadTimer, movetime, stopFlag);
+    std::thread searchThread(&Engine::searchPosition, &engine, std::ref(game),
+                             depth, std::ref(ret));
+    // once timerThread returns it sets stopFlag to true, stopping search thread
+    timerThread.join();
+    searchThread.join();
   }
-  iterativeReturn ret = engine.searchPosition(game, depth);
   for (int i = 0; i < (int)ret.evals.size(); i++) {
     std::cout << "info score cp " << ret.evals[i] << " depth " << i + 1
               << " nodes " << ret.nodeCounts[i] << " pv ";
@@ -92,9 +122,6 @@ void uciLoop(Game &game, Engine &engine) {
   // turn off buffering for input and output streams
   setbuf(stdin, NULL);
   setbuf(stdout, NULL);
-  /*std::cout << "id name mmengine" << std::endl;*/
-  /*std::cout << "id author Milind" << std::endl;*/
-  /*std::cout << "uciok" << std::endl;*/
 
   while (true) {
     std::string input;
