@@ -70,13 +70,48 @@ void parse_position(Game &game, std::string &command) {
 // Refactor Method to use threads for move timing
 void parse_go(Game &game, std::string &command, Engine &engine) {
   int depth = -1;
-  int commandPtr = 0;
+  size_t commandPtr = 0;
   // skip over the go keyword
   commandPtr += 3;
   iterativeReturn ret;
   std::thread searchThread;
   if (command.substr(commandPtr, 5) == "wtime") {
     int wtime = 0, btime = 0, winc = 0, binc = 0;
+    auto readNum = [&](std::string match, int &updateVar) {
+      if (command.substr(commandPtr, match.size()) == match) {
+        commandPtr += match.size() + 1;
+        updateVar =
+            stoi(command.substr(commandPtr, command.size() - commandPtr),
+                 &commandPtr);
+      }
+    };
+    // read in time that white has, and update the commandPtr to point to the
+    // new location
+    readNum("wtime", wtime);
+    readNum("btime", btime);
+    readNum("winc", winc);
+    readNum("binc", binc);
+
+    // TODO: Come up with more sophisticated time management mechanisms
+    // currently spending 2% of time on each move
+    // percentage of time to spend on a move
+    double timePercent = 0.02;
+    depth = 100;
+    std::chrono::milliseconds movetime;
+    if (game.side == white) {
+      movetime = std::chrono::milliseconds((int)(wtime * timePercent));
+    } else {
+      movetime = std::chrono::milliseconds((int)(btime * timePercent));
+    }
+
+    auto stopFlag = std::make_shared<std::atomic<bool>>(false);
+    engine.stopFlag = stopFlag;
+    std::thread timerThread(threadTimer, movetime, stopFlag);
+    std::thread searchThread(&Engine::searchPosition, &engine, std::ref(game),
+                             depth, std::ref(ret));
+    // once timerThread returns it sets stopFlag to true, stopping search thread
+    timerThread.join();
+    searchThread.join();
   } else if (command.substr(commandPtr, 5) == "depth") {
     // we are not using a timer so set stop flag to null
     engine.stopFlag = nullptr;
