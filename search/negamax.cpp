@@ -106,6 +106,14 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
   return alpha;
 }
 
+/**
+ * Performs a lightweight endgame check to disable null move pruning in endgames
+ * where zugzwangs may be possible. Checks for all pieces other than knights and
+ * pawns as these pieces cannot lose moves
+ *
+ * @param game - current game state
+ * @return - true if the
+ */
 inline bool noZug(Game &game) {
   if (game.pieceBitboards[Q] || game.pieceBitboards[q] ||
       game.pieceBitboards[R] || game.pieceBitboards[r] ||
@@ -291,6 +299,22 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   return alpha;
 }
 
+/**
+ * Initializes the necessary engine state components to appropriate values and
+ * starts an iterative deepening search up to depth from the current position.
+ * Monitors the stopFlag to determine if a timer has expired and the previously
+ * computed search results should be returned
+ *
+ * @param game - the current game state to perform the search on
+ * @param depth - the maximum depth to go up till in the search (can be set a
+ * large value e.g. 120 for time based searches)
+ * @param ret - iterativeReturn object that records the principal variation
+ * found at each depth along with nodeCounts and evals. Passed by reference.
+ * @returns void
+ *
+ * Thread Safety: this function is thread safe as it doesn't modify any
+ * concurrency variables
+ */
 void Engine::searchPosition(Game &game, int depth, iterativeReturn &ret) {
   for (int i = 0; i < (int)this->pvTable.size(); i++) {
     std::fill(this->pvTable[i].begin(), this->pvTable[i].end(), 0);
