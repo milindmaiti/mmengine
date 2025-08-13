@@ -11,6 +11,7 @@
 #include "../utility/randomutility.h"
 #include <array>
 #include <iostream>
+#include <cstring>
 #include <vector>
 
 #define copy_board()                                                           \
@@ -37,10 +38,9 @@ Game::Game(std::array<ull, NUM_SQ> rookMagics,
            int castle, int halfMoves, int fullMoves,
            std::array<ull, NUM_BITBOARDS> pieceBitboards,
            std::array<ull, NUM_OCCUPANCIES> occupancyBitboards)
-    : rookMagics(rookMagics), bishopMagics(bishopMagics), side(side),
-      enPassant(enPassant), castle(castle), halfMoves(halfMoves),
-      fullMoves(fullMoves), pieceBitboards(pieceBitboards),
-      occupancyBitboards(occupancyBitboards) {
+    : pieceBitboards(pieceBitboards), occupancyBitboards(occupancyBitboards),
+      side(side), enPassant(enPassant), castle(castle), halfMoves(halfMoves),
+      fullMoves(fullMoves), rookMagics(rookMagics), bishopMagics(bishopMagics) {
   init_leaper_attacks();
   init_slider_attacks(rook);
   init_slider_attacks(bishop);
@@ -49,9 +49,9 @@ Game::Game(std::array<ull, NUM_SQ> rookMagics,
 Game::Game(int side, int enPassant, int castle, int halfMoves, int fullMoves,
            std::array<ull, NUM_BITBOARDS> pieceBitboards,
            std::array<ull, NUM_OCCUPANCIES> occupancyBitboards)
-    : side(side), enPassant(enPassant), castle(castle), halfMoves(halfMoves),
-      fullMoves(fullMoves), pieceBitboards(pieceBitboards),
-      occupancyBitboards(occupancyBitboards) {
+    : pieceBitboards(pieceBitboards), occupancyBitboards(occupancyBitboards),
+      side(side), enPassant(enPassant), castle(castle), halfMoves(halfMoves),
+      fullMoves(fullMoves) {
   init_all();
 }
 
@@ -220,7 +220,7 @@ inline void Game::loop_attacks(int sourceSquare, ull attackBitboard, int piece,
       if (isPawn) {
         if (targetSquare == this->enPassant)
           moveList.push_back(
-              encode_move(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 1));
+              encode_move(sourceSquare, targetSquare, piece, 0, 0, 1, 0, 1));
       } else
         moveList.push_back(
             encode_move(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
@@ -258,7 +258,7 @@ std::vector<int> Game::generate_moves() {
   std::string curColor = side == white ? "white" : "black";
   int otherSide = 1 - this->side;
   int sourceSquare, targetSquare;
-  ull bitboardCopy, attackBitboard;
+  ull bitboardCopy, attackBitboard = 0;
   int lowerPiece = (side ? p : P);
   int upperPiece = (side ? k : K);
   for (int piece = lowerPiece; piece <= upperPiece; piece++) {

@@ -1,5 +1,5 @@
 #include "../bitboard/bitboard.h"
-#include <_ctype.h>
+#include <cctype>
 #include <cassert>
 #include <iostream>
 #include <string>
