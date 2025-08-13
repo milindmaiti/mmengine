@@ -3,16 +3,16 @@
 ull mask_pawn_attacks(int square, int side) {
   ull bitboard = 0ULL;
   ull attacks = bitboard;
-  set_bit(bitboard, square);
+  BitUtil::set_bit(bitboard, square);
 
-  if (side == white) {
-    ull right_attacks = (bitboard >> 7) & NO_A_FILE;
-    ull left_attacks = (bitboard >> 9) & NO_H_FILE;
+  if (side == Notation::white) {
+    ull right_attacks = (bitboard >> 7) & Constants::NO_A_FILE;
+    ull left_attacks = (bitboard >> 9) & Constants::NO_H_FILE;
     attacks |= right_attacks;
     attacks |= left_attacks;
   } else {
-    ull right_attacks = (bitboard << 7) & NO_H_FILE;
-    ull left_attacks = (bitboard << 9) & NO_A_FILE;
+    ull right_attacks = (bitboard << 7) & Constants::NO_H_FILE;
+    ull left_attacks = (bitboard << 9) & Constants::NO_A_FILE;
     attacks |= right_attacks;
     attacks |= left_attacks;
   }

@@ -1,11 +1,8 @@
 #pragma once
-#include "../movegen/bishopmove.h"
-#include "../movegen/kingmove.h"
-#include "../movegen/knightmove.h"
-#include "../movegen/pawnmove.h"
-#include "../movegen/queenmove.h"
-#include "../movegen/rookmove.h"
-#include "../utility/macros.h"
+#include "boardstate.h"
+#include "movegen/bishopmove.h"
+#include "movegen/rookmove.h"
+#include "utility/macros.h"
 #include <vector>
 class Game {
 public:
@@ -24,8 +21,8 @@ public:
    * 0100 - black kingside
    * 1000 - black queenside
    */
-  std::array<ull, NUM_BITBOARDS> pieceBitboards;
-  std::array<ull, NUM_OCCUPANCIES> occupancyBitboards;
+  std::array<ull, Constants::NUM_BITBOARDS> pieceBitboards;
+  std::array<ull, Constants::NUM_OCCUPANCIES> occupancyBitboards;
   // side to move
   int side;
   // en passant capture square
@@ -41,32 +38,39 @@ public:
   int fullMoves;
 
   /* pre-calculated pawn attack tables */
-  std::array<std::array<ull, NUM_SIDES>, NUM_SQ> pawnAttacks;
+  std::array<std::array<ull, Constants::NUM_SIDES>, Constants::NUM_SQ>
+      pawnAttacks;
   /* pre-calculated knight attack tables */
-  std::array<ull, NUM_SQ> knightAttacks;
+  std::array<ull, Constants::NUM_SQ> knightAttacks;
   /* pre-calculated king attack tables */
-  std::array<ull, NUM_SQ> kingAttacks;
+  std::array<ull, Constants::NUM_SQ> kingAttacks;
 
   // rook attack masks (considering no blockers)
-  std::array<ull, NUM_SQ> rookMasks;
+  std::array<ull, Constants::NUM_SQ> rookMasks;
   // bishop attack masks (considering no blockers)
-  std::array<ull, NUM_SQ> bishopMasks;
+  std::array<ull, Constants::NUM_SQ> bishopMasks;
 
   // rook attack masks (indexed by square and blocker piece masks)
-  std::array<std::array<ull, 1 << MAX_ROOK_BLOCK>, NUM_SQ> rookAttacks;
+  std::array<std::array<ull, 1 << Constants::MAX_ROOK_BLOCK>, Constants::NUM_SQ>
+      rookAttacks;
   // bishop attack masks (indexed by square and blocker piece masks)
-  std::array<std::array<ull, 1 << MAX_BISHOP_BLOCK>, NUM_SQ> bishopAttacks;
+  std::array<std::array<ull, 1 << Constants::MAX_BISHOP_BLOCK>,
+             Constants::NUM_SQ>
+      bishopAttacks;
 
-  std::array<ull, NUM_SQ> rookMagics;
-  std::array<ull, NUM_SQ> bishopMagics;
+  std::array<ull, Constants::NUM_SQ> rookMagics;
+  std::array<ull, Constants::NUM_SQ> bishopMagics;
 
-  Game(std::array<ull, NUM_SQ> rookMagics, std::array<ull, NUM_SQ> bishopMagics,
-       int side = white, int enPassant = -1, int castle = 15, int halfMoves = 0,
-       int fullMoves = 0, std::array<ull, NUM_BITBOARDS> pieceBitboards = {},
-       std::array<ull, NUM_OCCUPANCIES> occupancyBitboards = {});
-  Game(int side = white, int enPassant = -1, int castle = 15, int halfMoves = 0,
-       int fullMoves = 0, std::array<ull, NUM_BITBOARDS> pieceBitboards = {},
-       std::array<ull, NUM_OCCUPANCIES> occupancyBitboards = {});
+  Game(const std::array<ull, Constants::NUM_SQ> &rookMagics,
+       const std::array<ull, Constants::NUM_SQ> &bishopMagics,
+       int side = Notation::white, int enPassant = -1, int castle = 15,
+       int halfMoves = 0, int fullMoves = 0,
+       std::array<ull, Constants::NUM_BITBOARDS> pieceBitboards = {},
+       std::array<ull, Constants::NUM_OCCUPANCIES> occupancyBitboards = {});
+  Game(int side = Notation::white, int enPassant = -1, int castle = 15,
+       int halfMoves = 0, int fullMoves = 0,
+       std::array<ull, Constants::NUM_BITBOARDS> pieceBitboards = {},
+       std::array<ull, Constants::NUM_OCCUPANCIES> occupancyBitboards = {});
   // iterates over all subsets of a occupancy mask to prepare it for sliding
   // piece attack tables
   ull set_occupancy(int index, ull mask);
@@ -93,21 +97,24 @@ public:
 
     int oppositeSide = 1 - side;
     if (pawnAttacks[square][oppositeSide] &
-        pieceBitboards[(side == white) ? P : p])
+        pieceBitboards[(side == Notation::white) ? Notation::P : Notation::p])
       return true;
-    if (knightAttacks[square] & pieceBitboards[(side == white) ? N : n])
+    if (knightAttacks[square] &
+        pieceBitboards[(side == Notation::white) ? Notation::N : Notation::n])
       return true;
-    if (kingAttacks[square] & pieceBitboards[(side == white) ? K : k])
+    if (kingAttacks[square] &
+        pieceBitboards[(side == Notation::white) ? Notation::K : Notation::k])
       return true;
-    if (get_bishop_attack(square, occupancyBitboards[both], this->bishopMasks,
-                          this->bishopAttacks, this->bishopMagics) &
-        (pieceBitboards[(side == white) ? B : b] |
-         pieceBitboards[(side == white) ? Q : q]))
+    if (get_bishop_attack(square, occupancyBitboards[Notation::both],
+                          this->bishopMasks, this->bishopAttacks,
+                          this->bishopMagics) &
+        (pieceBitboards[(side == Notation::white) ? Notation::B : Notation::b] |
+         pieceBitboards[(side == Notation::white) ? Notation::Q : Notation::q]))
       return true;
-    if (get_rook_attack(square, occupancyBitboards[both], this->rookMasks,
-                        this->rookAttacks, this->rookMagics) &
-        (pieceBitboards[(side == white) ? R : r] |
-         pieceBitboards[(side == white) ? Q : q]))
+    if (get_rook_attack(square, occupancyBitboards[Notation::both],
+                        this->rookMasks, this->rookAttacks, this->rookMagics) &
+        (pieceBitboards[(side == Notation::white) ? Notation::R : Notation::r] |
+         pieceBitboards[(side == Notation::white) ? Notation::Q : Notation::q]))
       return true;
 
     return false;
@@ -117,4 +124,7 @@ public:
   std::vector<int> generate_moves();
   int makeMove(int move, bool onlyCapture);
   void init_all();
+
+  BoardState saveState() const;
+  void restoreState(const BoardState &state);
 };

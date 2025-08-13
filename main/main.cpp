@@ -1,38 +1,16 @@
-#include "../bitboard/bitboard.h"
-#include "../search/negamax.h"
-#include "../uci/parsecommands.h"
-#include "../utility/evaluationtables.h"
-#include "../utility/genspecialboards.h"
-#include "../utility/macros.h"
-#include "../utility/parsefen.h"
-#include "../utility/perft.h"
-#include "../utility/timerutility.h"
-#include <csignal>
-#include <cstdio>
+#include "bitboard/bitboard.h"
+#include "search/negamax.h"
+#include "utility/boardnotation.h"
+#include "utility/evaluationtables.h"
+#include "utility/macros.h"
+#include "utility/parsefen.h"
 
-using std::cout;
-int getCapturedPiece2(int move, Game &game) {
-  int lowerPiece, higherPiece;
-  int dst = decode_dst(move);
-
-  if (game.side == white) {
-    lowerPiece = p, higherPiece = q;
-  } else {
-    lowerPiece = P, higherPiece = Q;
-  }
-  for (int capturedPiece = lowerPiece; capturedPiece <= higherPiece;
-       capturedPiece++) {
-    if (get_bit(game.pieceBitboards[capturedPiece], dst)) {
-      return capturedPiece;
-    }
-  }
-  return -1;
-};
 int main() {
-  Game chess(rookMagics, bishopMagics);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   Engine engine(128);
 
-  /*parse_fen(chess, trickyPosition);*/
+  parse_fen(chess, ArrayUtil::trickyPosition);
+  print_board(chess);
   /*ull time1 = getMilliseconds();*/
   /*auto ret = engine.searchPosition(chess, 6);*/
   /*ull time2 = getMilliseconds();*/
@@ -104,7 +82,7 @@ int main() {
   /*     << "\n";*/
   /*print_board(chess);*/
 
-  uciLoop(chess, engine);
+  /*uciLoop(chess, engine);*/
   /*ull captures = 0, eps = 0, castles = 0, promotions = 0;*/
   /*ull nodes = perftDriver(chess, captures, eps, castles, promotions, 1);*/
   /*std::cout << nodes << "\n";*/
