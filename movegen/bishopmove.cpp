@@ -8,23 +8,26 @@ ull generate_bishop_moves_fly(int square, ull mask) {
   int rank = (square >> 3);
   int file = (square % Constants::BD);
 
-  for (ull curRank = rank + 1, curFile = file + 1;
-       curRank <= Constants::BD - 1 && curFile <= Constants::BD - 1;
+  for (int curRank = rank + 1, curFile = file + 1;
+       curRank <= static_cast<int>(Constants::BD) - 1 &&
+       curFile <= static_cast<int>(Constants::BD) - 1;
        curRank++, curFile++) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
   }
 
-  for (ull curRank = rank + 1, curFile = file - 1;
-       curRank <= Constants::BD - 1 && curFile >= 0; curRank++, curFile--) {
+  for (int curRank = rank + 1, curFile = file - 1;
+       curRank <= static_cast<int>(Constants::BD) - 1 && curFile >= 0;
+       curRank++, curFile--) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
   }
 
-  for (ull curRank = rank - 1, curFile = file + 1;
-       curRank >= 0 && curFile <= Constants::BD - 1; curRank--, curFile++) {
+  for (int curRank = rank - 1, curFile = file + 1;
+       curRank >= 0 && curFile <= static_cast<int>(Constants::BD) - 1;
+       curRank--, curFile++) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
     if (mask & (1ULL << ((curRank << 3) + curFile)))
       break;
@@ -49,23 +52,26 @@ ull mask_bishop_attacks(int square) {
   int rank = (square >> 3);
   int file = (square % Constants::BD);
 
-  for (ull curRank = rank + 1, curFile = file + 1;
-       curRank < Constants::BD - 1 && curFile < Constants::BD - 1;
+  for (int curRank = rank + 1, curFile = file + 1;
+       curRank < static_cast<int>(Constants::BD) - 1 &&
+       curFile < static_cast<int>(Constants::BD) - 1;
        curRank++, curFile++) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
-  for (ull curRank = rank + 1, curFile = file - 1;
-       curRank < Constants::BD - 1 && curFile > 0; curRank++, curFile--) {
+  for (int curRank = rank + 1, curFile = file - 1;
+       curRank < static_cast<int>(Constants::BD) - 1 && curFile > 0;
+       curRank++, curFile--) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
-  for (ull curRank = rank - 1, curFile = file + 1;
-       curRank > 0 && curFile < Constants::BD - 1; curRank--, curFile++) {
+  for (int curRank = rank - 1, curFile = file + 1;
+       curRank > 0 && curFile < static_cast<int>(Constants::BD) - 1;
+       curRank--, curFile++) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
   }
 
-  for (ull int curRank = rank - 1, curFile = file - 1;
+  for (int curRank = rank - 1, curFile = file - 1;
        curRank > 0 && curFile > 0; curRank--, curFile--) {
     attacks |= (1ULL << ((curRank << 3) + curFile));
   }

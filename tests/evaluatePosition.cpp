@@ -1,15 +1,15 @@
-#include "../bitboard/bitboard.h"
-#include "../search/evaluation.h"
-#include "../search/negamax.h"
-#include "../uci/parsecommands.h"
-#include "../utility/evaluationtables.h"
-#include "../utility/macros.h"
-#include "parsefen.h"
+#include "bitboard/bitboard.h"
+#include "search/evaluation.h"
+#include "search/negamax.h"
+#include "uci/parsecommands.h"
+#include "utility/evaluationtables.h"
+#include "utility/macros.h"
+#include "utility/parsefen.h"
 #include <gtest/gtest.h>
 
 TEST(evaluatePieces, startPosition) {
-  Game chess(rookMagics, bishopMagics);
-  parse_fen(chess, startPosition);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(chess, ArrayUtil::startPosition);
   ull eval = evaluatePosition(chess);
   EXPECT_EQ(eval, 0ULL);
 
@@ -22,8 +22,8 @@ TEST(evaluatePieces, startPosition) {
 }
 
 TEST(evaluatePieces, mateInOne) {
-  Game chess(rookMagics, bishopMagics);
-  parse_fen(chess, startPosition);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(chess, ArrayUtil::startPosition);
   ull eval = evaluatePosition(chess);
   EXPECT_EQ(eval, 0ULL);
 

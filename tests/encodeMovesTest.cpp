@@ -1,4 +1,4 @@
-#include "../utility/macros.h"
+#include "utility/macros.h"
 #include <gtest/gtest.h>
 
 TEST(MoveEncodingTest, srcTest) {

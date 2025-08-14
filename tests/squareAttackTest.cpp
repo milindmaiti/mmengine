@@ -1,33 +1,33 @@
-#include "../bitboard/bitboard.h"
-#include "../utility/boardnotation.h"
-#include "../utility/parsefen.h"
-#include "bishopmove.h"
-#include "macros.h"
+#include "bitboard/bitboard.h"
+#include "utility/boardnotation.h"
+#include "utility/parsefen.h"
+#include "movegen/bishopmove.h"
+#include "utility/macros.h"
 #include <gtest/gtest.h>
 
 // Demonstrate some basic assertions.
 TEST(SquareAttackTest, StartingPosition) {
-  Game chess(bishopMagics, rookMagics);
-  parse_fen(chess, startPosition);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(chess, ArrayUtil::startPosition);
 
-  ASSERT_EQ(chess.is_square_attacked(h3, white), true);
-  ASSERT_EQ(chess.is_square_attacked(a3, white), true);
-  ASSERT_EQ(chess.is_square_attacked(a4, white), false);
-  ASSERT_EQ(chess.is_square_attacked(a6, white), false);
-  ASSERT_EQ(chess.is_square_attacked(a6, black), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::h3, Notation::white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::a3, Notation::white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::a4, Notation::white), false);
+  ASSERT_EQ(chess.is_square_attacked(Notation::a6, Notation::white), false);
+  ASSERT_EQ(chess.is_square_attacked(Notation::a6, Notation::black), true);
 }
 
 TEST(SquareAttackTest, CMKPosition) {
-  Game chess(rookMagics, bishopMagics);
-  parse_fen(chess, cmkPosition);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(chess, ArrayUtil::cmkPosition);
 
-  ASSERT_EQ(chess.is_square_attacked(f5, white), true);
-  ASSERT_EQ(chess.is_square_attacked(c3, white), true);
-  ASSERT_EQ(chess.is_square_attacked(d6, white), false);
+  ASSERT_EQ(chess.is_square_attacked(Notation::f5, Notation::white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::c3, Notation::white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::d6, Notation::white), false);
 
-  ASSERT_EQ(chess.is_square_attacked(h6, white), true);
-  ASSERT_EQ(chess.is_square_attacked(b1, white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::h6, Notation::white), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::b1, Notation::white), true);
 
-  ASSERT_EQ(chess.is_square_attacked(h8, black), true);
-  ASSERT_EQ(chess.is_square_attacked(a5, black), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::h8, Notation::black), true);
+  ASSERT_EQ(chess.is_square_attacked(Notation::a5, Notation::black), true);
 }
