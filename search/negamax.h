@@ -1,6 +1,6 @@
 #pragma once
-#include "bitboard.h"
-#include <memory>
+#include "bitboard/bitboard.h"
+#include <vector>
 using std::vector;
 
 struct iterativeReturn {
@@ -37,3 +37,5 @@ public:
   void searchPosition(Game &game, int depth, iterativeReturn &ret);
   int quiesenceSearch(Game &game, int alpha, int beta, ull &nodes);
 };
+
+int getCapturedPiece(int move, Game &game);

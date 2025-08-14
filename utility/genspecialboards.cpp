@@ -6,9 +6,9 @@
 
 void no_a_file() {
   ull bitboard = 0ULL;
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int ix = BD * i + j;
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull ix = Constants::BD * i + j;
       if (j != 0)
         bitboard |= (1ULL << ix);
     }
@@ -17,10 +17,10 @@ void no_a_file() {
 }
 void no_h_file() {
   ull bitboard = 0ULL;
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int ix = BD * i + j;
-      if (j != BD - 1)
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull ix = Constants::BD * i + j;
+      if (j != Constants::BD - 1)
         bitboard |= (1ULL << ix);
     }
   }
@@ -28,9 +28,9 @@ void no_h_file() {
 }
 void no_hg_file() {
   ull bitboard = 0ULL;
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int ix = BD * i + j;
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull ix = Constants::BD * i + j;
       if (j < 6)
         bitboard |= (1ULL << ix);
     }
@@ -39,9 +39,9 @@ void no_hg_file() {
 }
 void no_ab_file() {
   ull bitboard = 0ULL;
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int ix = BD * i + j;
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull ix = Constants::BD * i + j;
       if (j > 1)
         bitboard |= (1ULL << ix);
     }
@@ -50,9 +50,9 @@ void no_ab_file() {
 }
 
 void bishop_occupancy_bits() {
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int square = i * BD + j;
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull square = i * Constants::BD + j;
       ull bitboard = mask_bishop_attacks(square);
       if (square == 0)
         print_bitboard(bitboard);
@@ -63,9 +63,9 @@ void bishop_occupancy_bits() {
 }
 
 void rook_occupancy_bits() {
-  for (int i = 0; i < BD; i++) {
-    for (int j = 0; j < BD; j++) {
-      int square = i * BD + j;
+  for (ull i = 0; i < Constants::BD; i++) {
+    for (ull j = 0; j < Constants::BD; j++) {
+      ull square = i * Constants::BD + j;
       ull bitboard = mask_rook_attacks(square);
       if (square == 0)
         print_bitboard(bitboard);

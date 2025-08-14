@@ -3,7 +3,7 @@
 // clang-format off
 
 // pawn positional score
-extern const std::array<int, NUM_SQ> pawnScores = 
+extern const std::array<int, Constants::NUM_SQ> pawnScores = 
 {
     90,  90,  90,  90,  90,  90,  90,  90,
     30,  30,  30,  40,  40,  30,  30,  30,
@@ -16,7 +16,7 @@ extern const std::array<int, NUM_SQ> pawnScores =
 };
 
 // knight positional score
-extern const std::array<int, NUM_SQ> knightScores =
+extern const std::array<int, Constants::NUM_SQ> knightScores =
 {
     -5,   0,   0,   0,   0,   0,   0,  -5,
     -5,   0,   0,  10,  10,   0,   0,  -5,
@@ -29,7 +29,7 @@ extern const std::array<int, NUM_SQ> knightScores =
 };
 
 // bishop positional score
-extern const std::array<int, NUM_SQ> bishopScores =
+extern const std::array<int, Constants::NUM_SQ> bishopScores =
 {
      0,   0,   0,   0,   0,   0,   0,   0,
      0,   0,   0,   0,   0,   0,   0,   0,
@@ -42,7 +42,7 @@ extern const std::array<int, NUM_SQ> bishopScores =
 };
 
 // rook positional score
-extern const std::array<int, NUM_SQ> rookScores =
+extern const std::array<int, Constants::NUM_SQ> rookScores =
 {
     50,  50,  50,  50,  50,  50,  50,  50,
     50,  50,  50,  50,  50,  50,  50,  50,
@@ -56,7 +56,7 @@ extern const std::array<int, NUM_SQ> rookScores =
 };
 
 // king positional score
-extern const std::array<int, NUM_SQ> kingScores =
+extern const std::array<int, Constants::NUM_SQ> kingScores =
 {
      0,   0,   0,   0,   0,   0,   0,   0,
      0,   0,   5,   5,   5,   5,   0,   0,
@@ -68,7 +68,8 @@ extern const std::array<int, NUM_SQ> kingScores =
      0,   0,   5,   0, -15,   0,  10,   0
 };
 
-extern const std::array<std::array<int, NUM_PIECES>, NUM_PIECES> mvvtable = {{
+// row is piece that is attacking, column is piece being captured
+extern const std::array<std::array<int, Constants::NUM_PIECES>, Constants::NUM_PIECES> mvvtable = {{
   {105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
 	{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
   {	103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},

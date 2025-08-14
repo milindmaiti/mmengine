@@ -1,50 +1,50 @@
-#include "../bitboard/bitboard.h"
-#include "../utility/macros.h"
-#include "evaluationtables.h"
+#include "bitboard/bitboard.h"
+#include "utility/evaluationtables.h"
+#include "utility/macros.h"
 
 // should probably inline this later
 ull evaluatePosition(Game &game) {
   ull evaluation = 0ULL;
-  for (int piece = P; piece <= k; piece++) {
+  for (int piece = Notation::P; piece <= Notation::k; piece++) {
     ull currentBitboard = game.pieceBitboards[piece];
     while (currentBitboard) {
-      int curSquare = LSOneIndex(currentBitboard);
-      evaluation += materialScores[piece];
+      int curSquare = BitUtil::LSOneIndex(currentBitboard);
+      ArrayUtil::materialScores[piece];
 
       switch (piece) {
-      case P:
+      case Notation::P:
         evaluation += pawnScores[curSquare];
         break;
-      case N:
+      case Notation::N:
         evaluation += knightScores[curSquare];
         break;
-      case B:
+      case Notation::B:
         evaluation += bishopScores[curSquare];
         break;
-      case R:
+      case Notation::R:
         evaluation += rookScores[curSquare];
         break;
-      case K:
+      case Notation::K:
         evaluation += kingScores[curSquare];
         break;
-      case p:
-        evaluation -= pawnScores[squareMirror[curSquare]];
+      case Notation::p:
+        evaluation -= pawnScores[ArrayUtil::squareMirror[curSquare]];
         break;
-      case n:
-        evaluation -= knightScores[squareMirror[curSquare]];
+      case Notation::n:
+        evaluation -= knightScores[ArrayUtil::squareMirror[curSquare]];
         break;
-      case b:
-        evaluation -= bishopScores[squareMirror[curSquare]];
+      case Notation::b:
+        evaluation -= bishopScores[ArrayUtil::squareMirror[curSquare]];
         break;
-      case r:
-        evaluation -= rookScores[squareMirror[curSquare]];
+      case Notation::r:
+        evaluation -= rookScores[ArrayUtil::squareMirror[curSquare]];
         break;
-      case k:
-        evaluation -= kingScores[squareMirror[curSquare]];
+      case Notation::k:
+        evaluation -= kingScores[ArrayUtil::squareMirror[curSquare]];
         break;
       }
-      pop_bit(currentBitboard, curSquare);
+      BitUtil::pop_bit(currentBitboard, curSquare);
     }
   }
-  return (game.side == white ? 1 : -1) * evaluation;
+  return (game.side == Notation::white ? 1 : -1) * evaluation;
 }

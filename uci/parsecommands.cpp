@@ -1,34 +1,36 @@
-#include "../bitboard/bitboard.h"
-#include "../search/negamax.h"
-#include "../utility/boardnotation.h"
-#include "../utility/macros.h"
-#include "../utility/timerutility.h"
-#include "parsefen.h"
+#include "bitboard/bitboard.h"
+#include "search/negamax.h"
+#include "utility/boardnotation.h"
+#include "utility/macros.h"
+#include "utility/parsefen.h"
+#include "utility/timerutility.h"
 #include <cctype>
 #include <chrono>
 #include <cstdio>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <thread>
 
 std::string moveToUciMove(int move) {
-  int moveSrc = decode_src(move);
-  int moveDst = decode_dst(move);
-  int movePromotion = decode_promotion(move);
-  std::string uciString = indexToSquare[moveSrc] + indexToSquare[moveDst];
+  int moveSrc = BitUtil::decode_src(move);
+  int moveDst = BitUtil::decode_dst(move);
+  int movePromotion = BitUtil::decode_promotion(move);
+  std::string uciString =
+      ArrayUtil::indexToSquare[moveSrc] + ArrayUtil::indexToSquare[moveDst];
   if (movePromotion > 0) {
-    uciString += std::tolower(asciiPieces[movePromotion]);
+    uciString += std::tolower(ArrayUtil::asciiPieces[movePromotion]);
   }
   return uciString;
 }
 int parse_move(Game &game, std::string &uciMove) {
   auto moveList = game.generate_moves();
-  copy_current_board();
+  BoardState state = game.saveState();
   for (int move : moveList) {
     if (!game.makeMove(move, false))
       continue;
-    pop_current_copy();
+    game.restoreState(state);
     if (uciMove == moveToUciMove(move))
       return move;
   }
@@ -40,13 +42,13 @@ void parse_position(Game &game, std::string &command) {
   // skip the "position" word and whitespace
   commandPtr += 9;
   if (command.substr(commandPtr, 8) == "startpos") {
-    parse_fen(game, startPosition);
+    parse_fen(game, ArrayUtil::startPosition);
     commandPtr += 9;
   } else if (command.substr(commandPtr, 3) == "fen") {
     commandPtr += 4;
     parse_fen(game, command.substr(commandPtr, command.size() - commandPtr));
   } else {
-    parse_fen(game, startPosition);
+    parse_fen(game, ArrayUtil::startPosition);
   }
 
   size_t pos = command.find("moves", commandPtr);
@@ -98,7 +100,7 @@ void parse_go(Game &game, std::string &command, Engine &engine) {
     double timePercent = 0.02;
     depth = 100;
     std::chrono::milliseconds movetime;
-    if (game.side == white) {
+    if (game.side == Notation::white) {
       movetime = std::chrono::milliseconds((int)(wtime * timePercent));
     } else {
       movetime = std::chrono::milliseconds((int)(btime * timePercent));
@@ -140,10 +142,10 @@ void parse_go(Game &game, std::string &command, Engine &engine) {
     timerThread.join();
     searchThread.join();
   }
-  for (int i = 0; i < (int)ret.evals.size(); i++) {
+  for (ull i = 0; i < ret.evals.size(); i++) {
     std::cout << "info score cp " << ret.evals[i] << " depth " << i + 1
               << " nodes " << ret.nodeCounts[i] << " pv ";
-    for (int j = 0; j <= i; j++) {
+    for (ull j = 0; j <= i; j++) {
       std::cout << moveToUciMove(ret.pvs[i][j]) << " ";
     }
     std::cout << "\n";

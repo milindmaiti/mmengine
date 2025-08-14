@@ -1,5 +1,7 @@
 #include "macros.h"
-ull initial_state = INITIAL_RANDOM_STATE;
+
+// Initialize with engine RNG seed
+static ull initial_state = Constants::RANDOM_STATE;
 // generate 64 bit random numbers using the XOR shift method
 ull generate_random_number() {
   ull cp = initial_state;

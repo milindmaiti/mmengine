@@ -1,15 +1,11 @@
 #include "negamax.h"
-#include "../bitboard/bitboard.h"
-#include "../utility/boardnotation.h"
-#include "../utility/evaluationtables.h"
-#include "../utility/macros.h"
+#include "bitboard/bitboard.h"
 #include "evaluation.h"
+#include "utility/evaluationtables.h"
+#include "utility/macros.h"
 #include <algorithm>
 #include <cassert>
-#include <climits>
-#include <cstdio>
-#include <ios>
-#include <numeric>
+#include <vector>
 
 using std::vector;
 static int INF = 1e7;
@@ -21,55 +17,55 @@ Engine::Engine(int mxdepth, int killernum, int mxhist, int fullmoves,
     : mxDepth(mxdepth), killerNum(killernum), ply(0), MXHISTORY(mxhist),
       FullDepthMoves(fullmoves), reductionLimit(redlimit), windowSize(windowsz),
       followPv(false), nullVar(false),
-      killerMoves(this->killerNum, vector<int>(this->mxDepth)),
-      historyMoves(NUM_PIECES, vector<int>(NUM_SQ)),
+      killerMoves(this->killerNum, std::vector<int>(this->mxDepth)),
+      historyMoves(Constants::NUM_PIECES, vector<int>(Constants::NUM_SQ)),
       pvTable(this->mxDepth, vector<int>(this->mxDepth)) {}
 int Engine::evaluateMove(int move, Game &game) {
   // give largest bonus to best variation found in previous search
   if (this->followPv && move == this->pvTable[0][ply]) {
     return 20000;
   }
-  if (decode_capture(move)) {
+  if (BitUtil::decode_capture(move)) {
 
     int lowerPiece, higherPiece;
-    int dst = decode_dst(move);
+    ull dst = BitUtil::decode_dst(move);
 
     int cap = -1;
-    if (game.side == white) {
-      lowerPiece = p, higherPiece = q;
+    if (game.side == Notation::white) {
+      lowerPiece = Notation::p, higherPiece = Notation::q;
     } else {
-      lowerPiece = P, higherPiece = Q;
+      lowerPiece = Notation::P, higherPiece = Notation::Q;
     }
     for (int capturedPiece = lowerPiece; capturedPiece <= higherPiece;
          capturedPiece++) {
-      if (get_bit(game.pieceBitboards[capturedPiece], dst)) {
+      if (BitUtil::get_bit(game.pieceBitboards[capturedPiece], dst)) {
         cap = capturedPiece;
       }
     }
     // extra 10k to put captures above killer moves
-    return mvvtable[decode_piece(move)][cap] + 10000;
+    return mvvtable[BitUtil::decode_piece(move)][cap] +
+           MoveBonus::CAPTURE_MOVE_BONUS;
   } else {
     if (ply < mxDepth && this->killerMoves[0][ply] == move)
-      return 9000;
-    else if (ply < mxDepth && this->killerMoves[0][ply] == move)
-      return 8000;
+      return MoveBonus::KILLER_MOVE_BONUS;
     else
-      return historyMoves[decode_piece(move)][decode_dst(move)];
+      return historyMoves[BitUtil::decode_piece(move)]
+                         [BitUtil::decode_dst(move)];
     return 0;
   }
 }
 int getCapturedPiece(int move, Game &game) {
   int lowerPiece, higherPiece;
-  int dst = decode_dst(move);
+  int dst = BitUtil::decode_dst(move);
 
-  if (game.side == white) {
-    lowerPiece = p, higherPiece = q;
+  if (game.side == Notation::white) {
+    lowerPiece = Notation::p, higherPiece = Notation::q;
   } else {
-    lowerPiece = P, higherPiece = Q;
+    lowerPiece = Notation::P, higherPiece = Notation::Q;
   }
   for (int capturedPiece = lowerPiece; capturedPiece <= higherPiece;
        capturedPiece++) {
-    if (get_bit(game.pieceBitboards[capturedPiece], dst)) {
+    if (BitUtil::get_bit(game.pieceBitboards[capturedPiece], dst)) {
       return capturedPiece;
     }
   }
@@ -90,7 +86,7 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
     return evaluateMove(move1, game) > evaluateMove(move2, game);
   });
 
-  copy_current_board();
+  BoardState currentPosition = game.saveState();
   for (int move : moveList) {
     if (!game.makeMove(move, true))
       continue;
@@ -101,7 +97,7 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
     alpha = std::max(alpha, evaluation);
     if (alpha >= beta)
       return alpha;
-    pop_current_copy();
+    game.restoreState(currentPosition);
   }
   return alpha;
 }
@@ -112,12 +108,12 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
  * pawns as these pieces cannot lose moves
  *
  * @param game - current game state
- * @return - true if the
+ * @return - true if the game contains a heavy piece making zugzwang unlikely
  */
 inline bool noZug(Game &game) {
-  if (game.pieceBitboards[Q] || game.pieceBitboards[q] ||
-      game.pieceBitboards[R] || game.pieceBitboards[r] ||
-      game.pieceBitboards[B] || game.pieceBitboards[b])
+  if (game.pieceBitboards[Notation::Q] || game.pieceBitboards[Notation::q] ||
+      game.pieceBitboards[Notation::R] || game.pieceBitboards[Notation::r] ||
+      game.pieceBitboards[Notation::B] || game.pieceBitboards[Notation::b])
     return true;
   return false;
 }
@@ -131,10 +127,12 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   if (depth == 0) {
     return quiesenceSearch(game, alpha, beta, nodes);
   }
-  copy_current_board();
+  BoardState currentPosition = game.saveState();
   nodes++;
   int inCheck = game.is_square_attacked(
-      LSOneIndex(game.pieceBitboards[(game.side == white) ? K : k]),
+      BitUtil::LSOneIndex(
+          game.pieceBitboards[(game.side == Notation::white) ? Notation::K
+                                                             : Notation::k]),
       !game.side);
 
   // null-move pruning - try to throw a move away and see if we get a beta
@@ -147,14 +145,14 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   if (this->nullVar == false && !inCheck && this->ply > 0 &&
       depth >= this->reductionLimit && noZug(game)) {
     this->nullVar = true;
-    game.enPassant = NO_SQ;
+    game.enPassant = Notation::NO_SQ;
     game.side = !game.side;
     int evaluation =
         -negamax(game, depth - 2, -alpha - 1, -alpha, initialDepth, nodes);
 
     this->nullVar = false;
     // ensure we pop copy in all paths
-    pop_current_copy();
+    game.restoreState(currentPosition);
     if (evaluation >= beta)
       return beta;
   }
@@ -219,9 +217,10 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
       // have a lot more depth to recurse and we've already considered the top 4
       // moves, then do a smaller search with one less depth to test if a move
       // could be good or not
-      if (inCheck == false && decode_capture(move) == 0 &&
-          decode_promotion(move) == 0 && decode_castle(move) == 0 &&
-          depth >= this->reductionLimit && numMoves >= this->FullDepthMoves) {
+      if (inCheck == false && BitUtil::decode_capture(move) == 0 &&
+          BitUtil::decode_promotion(move) == 0 &&
+          BitUtil::decode_castle(move) == 0 && depth >= this->reductionLimit &&
+          numMoves >= this->FullDepthMoves) {
 
         evaluation =
             -negamax(game, depth - 2, -alpha - 1, -alpha, initialDepth, nodes);
@@ -259,13 +258,14 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
 
       // update history values by adding a bonus proportional to depth (want to
       // reward moves higher up in tree since there are less of them)
-      if (decode_capture(move) == 0) {
+      if (BitUtil::decode_capture(move) == 0) {
 
         int clampedBonus = std::clamp(depth * depth, -MXHISTORY, MXHISTORY);
-        this->historyMoves[decode_piece(move)][decode_dst(move)] +=
-            clampedBonus -
-            this->historyMoves[decode_piece(move)][decode_dst(move)] *
-                abs(clampedBonus) / MXHISTORY;
+        this->historyMoves[BitUtil::decode_piece(move)]
+                          [BitUtil::decode_dst(move)] +=
+            clampedBonus - this->historyMoves[BitUtil::decode_piece(move)]
+                                             [BitUtil::decode_dst(move)] *
+                               abs(clampedBonus) / MXHISTORY;
       }
     }
     numMoves++;
@@ -273,18 +273,18 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
       // update killer moves so that these moves will be checked first in
       // sibling nodes
 
-      if (decode_capture(move) == 0) {
+      if (BitUtil::decode_capture(move) == 0) {
         if (ply < mxDepth) {
           this->killerMoves[1][ply] = this->killerMoves[0][ply];
           this->killerMoves[1][ply] = move;
         }
       }
       // huge bug fix, make sure to pop in all control paths
-      pop_current_copy();
+      game.restoreState(currentPosition);
       return alpha;
     }
     this->followPv = copyFollow;
-    pop_current_copy();
+    game.restoreState(currentPosition);
   }
   if (numMoves == 0) {
     // current side is checkmated (provide bonus for shorter checkmates)
@@ -316,10 +316,10 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
  * concurrency variables
  */
 void Engine::searchPosition(Game &game, int depth, iterativeReturn &ret) {
-  for (int i = 0; i < (int)this->pvTable.size(); i++) {
+  for (ull i = 0; i < this->pvTable.size(); i++) {
     std::fill(this->pvTable[i].begin(), this->pvTable[i].end(), 0);
   }
-  for (int i = 0; i < (int)this->historyMoves.size(); i++) {
+  for (ull i = 0; i < this->historyMoves.size(); i++) {
     std::fill(this->historyMoves[i].begin(), this->historyMoves[i].end(), 0);
   }
 

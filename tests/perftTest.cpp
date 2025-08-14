@@ -18,7 +18,7 @@ TEST(perftTest, startingPosition) {
                                              {4865609, 82719, 258, 0, 0},
                                              {119060324, 2812008, 5248, 0, 0}};
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)startPosition.size(); i++) {
+  for (ull i = 0; i < startPosition.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
     EXPECT_EQ(nodes, startPosition[i].nodes);
@@ -41,7 +41,7 @@ TEST(perftTest, trickyPosition) {
   };
 
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)trickyPosition.size(); i++) {
+  for (ull i = 0; i < trickyPosition.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
     EXPECT_EQ(nodes, trickyPosition[i].nodes);
@@ -65,7 +65,7 @@ TEST(perftTest, endgamePosition) {
       {11030083, 940350, 33325, 0, 7552}};
 
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)endgamePosition.size(); i++) {
+  for (ull i = 0; i < endgamePosition.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
     EXPECT_EQ(nodes, endgamePosition[i].nodes);
@@ -81,7 +81,7 @@ TEST(perftTest, TalkChessPosition) {
   parse_fen(game, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
   std::vector<ull> talkChessNodes = {44, 1486, 62379, 2103487, 89941194};
   ull captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)talkChessNodes.size(); i++) {
+  for (ull i = 0; i < talkChessNodes.size(); i++) {
     captures = 0, eps = 0, castles = 0, promotions = 0;
     ASSERT_EQ(perftDriver(game, captures, eps, castles, promotions, i + 1),
               talkChessNodes[i]);
@@ -95,7 +95,7 @@ TEST(perftTest, edwardsPosition) {
   parse_fen(game, edwardsPosition);
   std::vector<ull> edwardsNodes = {46, 2079, 89890, 3894594, 164075551};
   ull captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)edwardsNodes.size(); i++) {
+  for (ull i = 0; i < edwardsNodes.size(); i++) {
     captures = 0, eps = 0, castles = 0, promotions = 0;
     ASSERT_EQ(perftDriver(game, captures, eps, castles, promotions, i + 1),
               edwardsNodes[i]);
@@ -111,7 +111,7 @@ TEST(perftTest, checkPosition) {
   parse_fen(game, checkPosition);
   std::vector<ull> checkNodes = {6, 264, 9467, 422333, 15833292};
   ull captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (int i = 0; i < (int)checkNodes.size(); i++) {
+  for (ull i = 0; i < checkNodes.size(); i++) {
     captures = 0, eps = 0, castles = 0, promotions = 0;
     ASSERT_EQ(perftDriver(game, captures, eps, castles, promotions, i + 1),
               checkNodes[i]);

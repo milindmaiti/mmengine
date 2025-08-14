@@ -69,7 +69,7 @@ TEST(generateMoves, trickyPositionWhite) {
   sort(masterMovesList.begin(), masterMovesList.end());
 
   ASSERT_EQ(moveList.size(), masterMovesList.size());
-  for (int i = 0; i < (int)moveList.size(); i++) {
+  for (ull i = 0; i < moveList.size(); i++) {
     EXPECT_EQ(moveList[i], masterMovesList[i]);
   }
 }
@@ -134,7 +134,7 @@ TEST(generateMoves, trickyPositionBlack) {
   /*print_moves(moveList);*/
   /*print_moves(masterMovesList);*/
   ASSERT_EQ(moveList.size(), masterMovesList.size());
-  for (int i = 0; i < (int)moveList.size(); i++) {
+  for (ull i = 0; i < moveList.size(); i++) {
     EXPECT_EQ(moveList[i], masterMovesList[i]);
   }
 }

@@ -38,9 +38,9 @@ namespace PrintUtil {
 
 namespace BitUtil {
   ull get_bit(ull bitboard, ull square);
-  ull set_bit(ull bitboard, ull square);
-  ull pop_bit(ull bitboard, ull square);
-  ull toggle_bit(ull bitboard, ull square);
+  void set_bit(ull &bitboard, ull square);
+  void pop_bit(ull &bitboard, ull square);
+  void toggle_bit(ull &bitboard, ull square);
 
   // move encoding/decoding functions
   ull encode_move(ull src, ull dst, ull piece, ull promotion, ull castle,
@@ -100,6 +100,11 @@ namespace Notation{
   enum colors{
     white, black, both
   };
+}
+
+namespace MoveBonus{
+  const int KILLER_MOVE_BONUS = 9000;
+  const int CAPTURE_MOVE_BONUS = 10000;
 }
 
 // clang-format on

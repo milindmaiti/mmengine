@@ -2,8 +2,8 @@
  * Prints squares in algebraic notation (a1, a2, ...) in
  * several different formats
  */
-#include "../bitboard/bitboard.h"
-#include "macros.h"
+#include "bitboard/bitboard.h"
+#include "utility/macros.h"
 #include <iomanip>
 #include <iostream>
 
@@ -35,20 +35,20 @@ void print_bitboard(ull bitboard) {
 
   // loop through every square of the bitboard and print its value
   std::cout << "\n";
-  for (int row = 0; row < BD; row++) {
-    pspace(1);
+  for (ull row = 0; row < Constants::BD; row++) {
+    PrintUtil::pspace(1);
     std::cout << 8 - row;
-    pspace(1);
-    for (int col = 0; col < BD; col++) {
-      int ix = BD * row + col;
-      std::cout << ((get_bit(bitboard, ix)) != 0) << " ";
+    PrintUtil::pspace(1);
+    for (ull col = 0; col < Constants::BD; col++) {
+      int ix = Constants::BD * row + col;
+      std::cout << ((BitUtil::get_bit(bitboard, ix)) != 0) << " ";
     }
     std::cout << "\n";
   }
 
   // extra space for the row number + a little padding
-  pspace(3);
-  for (int col = 0; col < BD; col++) {
+  PrintUtil::pspace(3);
+  for (ull col = 0; col < Constants::BD; col++) {
     std::cout << static_cast<char>('a' + col) << ' ';
   }
   std::cout << "\n\n";
@@ -60,28 +60,29 @@ void print_bitboard(ull bitboard) {
 void print_board(Game &game) {
   // loop through every square of the bitboard and print its value
   std::cout << "\n";
-  for (int row = 0; row < BD; row++) {
-    pspace(1);
+  for (ull row = 0; row < Constants::BD; row++) {
+    PrintUtil::pspace(1);
     std::cout << 8 - row;
-    pspace(1);
-    for (int col = 0; col < BD; col++) {
-      int square = BD * row + col;
+    PrintUtil::pspace(1);
+    for (ull col = 0; col < Constants::BD; col++) {
+      int square = Constants::BD * row + col;
       int curPiece = -1;
       // iterate over all piece bitboards and check if that piece is on that
       // sqaure
-      for (int piece = P; piece <= k; piece++)
-        if (get_bit(game.pieceBitboards[piece], square))
+      for (int piece = Notation::P; piece <= Notation::k; piece++)
+        if (BitUtil::get_bit(game.pieceBitboards[piece], square))
           curPiece = piece;
 
       /*std::cout << (curPiece == -1 ? '.' : asciiPieces[curPiece]) << " ";*/
-      std::cout << (curPiece == -1 ? "." : unicodePieces[curPiece]) << " ";
+      std::cout << (curPiece == -1 ? "." : ArrayUtil::unicodePieces[curPiece])
+                << " ";
     }
     std::cout << "\n";
   }
 
   // extra space for the row number + a little padding
-  pspace(3);
-  for (int col = 0; col < BD; col++) {
+  PrintUtil::pspace(3);
+  for (ull col = 0; col < Constants::BD; col++) {
     std::cout << static_cast<char>('a' + col) << ' ';
   }
   std::cout << "\n\n";
@@ -95,27 +96,29 @@ void print_board(Game &game) {
   std::cout << "\n";
 
   std::cout << "En Passant Square is: "
-            << (game.enPassant == NO_SQ ? "None"
-                                        : indexToSquare[game.enPassant])
+            << (game.enPassant == Notation::NO_SQ
+                    ? "None"
+                    : ArrayUtil::indexToSquare[game.enPassant])
             << "\n";
   std::cout << "\n";
 }
 
 void print_move(int move, int spacing) {
-  int src = decode_src(move);
-  int dst = decode_dst(move);
-  int piece = decode_piece(move);
-  int promo = decode_promotion(move);
-  int castle = decode_castle(move);
-  int capture = decode_capture(move);
-  int doublePush = decode_double_push(move);
-  int enPassant = decode_en_passant(move);
+  int src = BitUtil::decode_src(move);
+  int dst = BitUtil::decode_dst(move);
+  int piece = BitUtil::decode_piece(move);
+  int promo = BitUtil::decode_promotion(move);
+  int castle = BitUtil::decode_castle(move);
+  int capture = BitUtil::decode_capture(move);
+  int doublePush = BitUtil::decode_double_push(move);
+  int enPassant = BitUtil::decode_en_passant(move);
 
-  std::cout << std::left << std::setw(spacing) << indexToSquare[src]
-            << std::setw(spacing) << indexToSquare[dst] << std::setw(spacing)
-            << asciiPieces[piece] << std::setw(spacing)
+  std::cout << std::left << std::setw(spacing) << ArrayUtil::indexToSquare[src]
+            << std::setw(spacing) << ArrayUtil::indexToSquare[dst]
+            << std::setw(spacing) << ArrayUtil::asciiPieces[piece]
+            << std::setw(spacing)
             << ((promo == 0) ? std::string("None")
-                             : std::string(1, asciiPieces[promo]))
+                             : std::string(1, ArrayUtil::asciiPieces[promo]))
             << std::setw(spacing) << (castle ? "Yes" : "No")
 
             << std::setw(spacing) << (capture ? "Yes" : "No")

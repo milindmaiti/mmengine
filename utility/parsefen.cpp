@@ -1,7 +1,5 @@
 #include "../bitboard/bitboard.h"
-#include <_ctype.h>
 #include <cassert>
-#include <iostream>
 #include <string>
 void parse_fen(Game &game, const std::string &fen) {
   // zero out attributes of the game such as piece placements, side to move,
@@ -11,21 +9,22 @@ void parse_fen(Game &game, const std::string &fen) {
   for (ull &bitboard : game.occupancyBitboards)
     bitboard = 0;
   int fenPtr = 0;
-  game.side = white;
-  game.enPassant = NO_SQ;
+  game.side = Notation::white;
+  game.enPassant = Notation::NO_SQ;
   game.castle = 0;
   game.halfMoves = 0;
   game.fullMoves = 0;
 
-  for (int rank = 0; rank < BD; rank++) {
-    for (int col = 0; col < BD; col++) {
-      int square = rank * BD + col;
+  for (int rank = 0; rank < (int)Constants::BD; rank++) {
+    for (int col = 0; col < (int)Constants::BD; col++) {
+      int square = rank * (int)Constants::BD + col;
       if (fen[fenPtr] >= '0' && fen[fenPtr] <= '9') {
         col += (fen[fenPtr] - '0' - 1);
       } else if ((fen[fenPtr] >= 'a' && fen[fenPtr] <= 'z') ||
                  (fen[fenPtr] >= 'A' && fen[fenPtr] <= 'Z')) {
-        int curPiece = charPieces[fen[fenPtr]];
-        set_bit(game.pieceBitboards[curPiece], square);
+        int curPiece =
+            ArrayUtil::charPieces[static_cast<unsigned char>(fen[fenPtr])];
+        BitUtil::set_bit(game.pieceBitboards[curPiece], square);
       } else if (fen[fenPtr] == '/') {
         col--;
       }
@@ -46,15 +45,16 @@ void parse_fen(Game &game, const std::string &fen) {
     fenPtr += 2;
   } else {
     while (fen[fenPtr] != ' ') {
-      int curPiece = charPieces[fen[fenPtr]];
-      if (curPiece == K)
-        game.castle |= wk;
-      else if (curPiece == Q)
-        game.castle |= wq;
-      else if (curPiece == k)
-        game.castle |= bk;
-      else if (curPiece == q)
-        game.castle |= bq;
+      int curPiece =
+          ArrayUtil::charPieces[static_cast<unsigned char>(fen[fenPtr])];
+      if (curPiece == Notation::K)
+        game.castle |= Notation::wk;
+      else if (curPiece == Notation::Q)
+        game.castle |= Notation::wq;
+      else if (curPiece == Notation::k)
+        game.castle |= Notation::bk;
+      else if (curPiece == Notation::q)
+        game.castle |= Notation::bq;
       fenPtr++;
     }
     // skip the space
@@ -89,12 +89,13 @@ void parse_fen(Game &game, const std::string &fen) {
   }
 
   // copy all white pieces to the full white bitboard and same for black
-  for (int i = P; i <= K; i++)
-    game.occupancyBitboards[white] |= game.pieceBitboards[i];
-  for (int i = p; i <= k; i++)
-    game.occupancyBitboards[black] |= game.pieceBitboards[i];
+  for (int i = Notation::P; i <= Notation::K; i++)
+    game.occupancyBitboards[Notation::white] |= game.pieceBitboards[i];
+  for (int i = Notation::p; i <= Notation::k; i++)
+    game.occupancyBitboards[Notation::black] |= game.pieceBitboards[i];
 
   // copy all white + black pieces to full bitboard
-  game.occupancyBitboards[both] |=
-      (game.occupancyBitboards[white] | game.occupancyBitboards[black]);
+  game.occupancyBitboards[Notation::both] |=
+      (game.occupancyBitboards[Notation::white] |
+       game.occupancyBitboards[Notation::black]);
 }

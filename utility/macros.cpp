@@ -14,14 +14,14 @@ namespace BitUtil {
   ull get_bit(ull bitboard, ull square) {
     return (bitboard) & (1ULL << (square));
   }
-  ull set_bit(ull bitboard, ull square) {
-    return (bitboard) | (1ULL << (square));
+  void set_bit(ull &bitboard, ull square) {
+    bitboard |= (1ULL << (square));
   }
-  ull pop_bit(ull bitboard, ull square) {
-    return (bitboard) & ~(1ULL << (square));
+  void pop_bit(ull &bitboard, ull square) {
+    bitboard &= ~(1ULL << (square));
   }
-  ull toggle_bit(ull bitboard, ull square) {
-    return (bitboard) ^ (1ULL << (square));
+  void toggle_bit(ull &bitboard, ull square) {
+    bitboard ^= (1ULL << (square));
   }
   // Move decoding functions
   ull decode_src(ull move) { return (move) & 0x3F; }
