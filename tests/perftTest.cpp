@@ -1,7 +1,7 @@
-#include "../utility/perft.h"
-#include "../bitboard/bitboard.h"
-#include "../utility/macros.h"
-#include "parsefen.h"
+#include "utility/perft.h"
+#include "bitboard/bitboard.h"
+#include "utility/macros.h"
+#include "utility/parsefen.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -9,30 +9,30 @@ struct positionStat {
   ull nodes, captures, enPassants, castles, promotions;
 };
 TEST(perftTest, startingPosition) {
-  Game game(rookMagics, bishopMagics);
-  parse_fen(game, startPosition);
-  std::vector<positionStat> startPosition = {{20, 0, 0, 0, 0},
-                                             {400, 0, 0, 0, 0},
-                                             {8902, 34, 0, 0, 0},
-                                             {197281, 1576, 0, 0, 0},
-                                             {4865609, 82719, 258, 0, 0},
-                                             {119060324, 2812008, 5248, 0, 0}};
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(game, ArrayUtil::startPosition);
+  std::vector<positionStat> startStats = {{20, 0, 0, 0, 0},
+                                          {400, 0, 0, 0, 0},
+                                          {8902, 34, 0, 0, 0},
+                                          {197281, 1576, 0, 0, 0},
+                                          {4865609, 82719, 258, 0, 0},
+                                          {119060324, 2812008, 5248, 0, 0}};
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (ull i = 0; i < startPosition.size(); i++) {
+  for (ull i = 0; i < startStats.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
-    EXPECT_EQ(nodes, startPosition[i].nodes);
-    EXPECT_EQ(captures + eps, startPosition[i].captures);
-    EXPECT_EQ(eps, startPosition[i].enPassants);
-    EXPECT_EQ(castles, startPosition[i].castles);
-    EXPECT_EQ(promotions, startPosition[i].promotions);
+    EXPECT_EQ(nodes, startStats[i].nodes);
+    EXPECT_EQ(captures + eps, startStats[i].captures);
+    EXPECT_EQ(eps, startStats[i].enPassants);
+    EXPECT_EQ(castles, startStats[i].castles);
+    EXPECT_EQ(promotions, startStats[i].promotions);
   }
 }
 
 TEST(perftTest, trickyPosition) {
-  Game game(rookMagics, bishopMagics);
-  parse_fen(game, trickyPosition);
-  std::vector<positionStat> trickyPosition = {
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
+  parse_fen(game, ArrayUtil::trickyPosition);
+  std::vector<positionStat> trickyStats = {
       {48, 8, 0, 2, 0},
       {2039, 351, 1, 91, 0},
       {97862, 17102, 45, 3162, 0},
@@ -41,22 +41,22 @@ TEST(perftTest, trickyPosition) {
   };
 
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (ull i = 0; i < trickyPosition.size(); i++) {
+  for (ull i = 0; i < trickyStats.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
-    EXPECT_EQ(nodes, trickyPosition[i].nodes);
-    EXPECT_EQ(captures + eps, trickyPosition[i].captures);
-    EXPECT_EQ(eps, trickyPosition[i].enPassants);
-    EXPECT_EQ(castles, trickyPosition[i].castles);
-    EXPECT_EQ(promotions, trickyPosition[i].promotions);
+    EXPECT_EQ(nodes, trickyStats[i].nodes);
+    EXPECT_EQ(captures + eps, trickyStats[i].captures);
+    EXPECT_EQ(eps, trickyStats[i].enPassants);
+    EXPECT_EQ(castles, trickyStats[i].castles);
+    EXPECT_EQ(promotions, trickyStats[i].promotions);
   }
 }
 
 TEST(perftTest, endgamePosition) {
-  Game game(rookMagics, bishopMagics);
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   std::string endPosition = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ";
   parse_fen(game, endPosition);
-  std::vector<positionStat> endgamePosition = {
+  std::vector<positionStat> endgameStats = {
       {14, 1, 0, 0, 0},
       {191, 14, 0, 0, 0},
       {2812, 209, 2, 0, 0},
@@ -65,19 +65,19 @@ TEST(perftTest, endgamePosition) {
       {11030083, 940350, 33325, 0, 7552}};
 
   ull nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
-  for (ull i = 0; i < endgamePosition.size(); i++) {
+  for (ull i = 0; i < endgameStats.size(); i++) {
     nodes = 0, captures = 0, eps = 0, castles = 0, promotions = 0;
     nodes = perftDriver(game, captures, eps, castles, promotions, i + 1);
-    EXPECT_EQ(nodes, endgamePosition[i].nodes);
-    EXPECT_EQ(captures + eps, endgamePosition[i].captures);
-    EXPECT_EQ(eps, endgamePosition[i].enPassants);
-    EXPECT_EQ(castles, endgamePosition[i].castles);
-    EXPECT_EQ(promotions, endgamePosition[i].promotions);
+    EXPECT_EQ(nodes, endgameStats[i].nodes);
+    EXPECT_EQ(captures + eps, endgameStats[i].captures);
+    EXPECT_EQ(eps, endgameStats[i].enPassants);
+    EXPECT_EQ(castles, endgameStats[i].castles);
+    EXPECT_EQ(promotions, endgameStats[i].promotions);
   }
 }
 
 TEST(perftTest, TalkChessPosition) {
-  Game game(rookMagics, bishopMagics);
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   parse_fen(game, "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
   std::vector<ull> talkChessNodes = {44, 1486, 62379, 2103487, 89941194};
   ull captures = 0, eps = 0, castles = 0, promotions = 0;
@@ -89,7 +89,7 @@ TEST(perftTest, TalkChessPosition) {
 }
 
 TEST(perftTest, edwardsPosition) {
-  Game game(rookMagics, bishopMagics);
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   std::string edwardsPosition = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/"
                                 "P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
   parse_fen(game, edwardsPosition);
@@ -104,7 +104,7 @@ TEST(perftTest, edwardsPosition) {
 
 TEST(perftTest, checkPosition) {
 
-  Game game(rookMagics, bishopMagics);
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
 
   std::string checkPosition =
       "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";

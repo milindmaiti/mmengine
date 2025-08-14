@@ -1,93 +1,105 @@
-#include "../bitboard/bitboard.h"
-#include "../movegen/bishopmove.h"
-#include "../movegen/rookmove.h"
-#include "../utility/boardnotation.h"
-#include "macros.h"
+#include "bitboard/bitboard.h"
+#include "movegen/bishopmove.h"
+#include "movegen/rookmove.h"
+#include "utility/boardnotation.h"
+#include "utility/macros.h"
 #include <gtest/gtest.h>
 #include <vector>
 
 TEST(PieceTest, BishopTest) {
-  Game chess(rookMagics, bishopMagics);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   ull occupancyMask = 0ULL;
-  set_bit(occupancyMask, f4);
-  ull pred = get_bishop_attack(h6, occupancyMask, chess.bishopMasks,
+  BitUtil::set_bit(occupancyMask, Notation::f4);
+  ull pred = get_bishop_attack(Notation::h6, occupancyMask, chess.bishopMasks,
                                chess.bishopAttacks, chess.bishopMagics);
   ull ans = 0ULL;
-  set_bit(ans, f4);
-  set_bit(ans, g5);
-  set_bit(ans, g7);
-  set_bit(ans, f8);
+  BitUtil::set_bit(ans, Notation::f4);
+  BitUtil::set_bit(ans, Notation::g5);
+  BitUtil::set_bit(ans, Notation::g7);
+  BitUtil::set_bit(ans, Notation::f8);
   ASSERT_EQ(ans, pred);
 
   occupancyMask = 0ULL;
   ans = 0ULL;
-  pred = get_bishop_attack(a1, occupancyMask, chess.bishopMasks,
+  pred = get_bishop_attack(Notation::a1, occupancyMask, chess.bishopMasks,
                            chess.bishopAttacks, chess.bishopMagics);
-  std::vector<int> moves{b2, c3, d4, e5, f6, g7, h8};
+  std::vector<int> moves{Notation::b2, Notation::c3, Notation::d4, Notation::e5,
+                         Notation::f6, Notation::g7, Notation::h8};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 
   occupancyMask = 0ULL;
-  set_bit(occupancyMask, h7);
-  set_bit(occupancyMask, b1);
-  set_bit(occupancyMask, a6);
-  set_bit(occupancyMask, f1);
+  BitUtil::set_bit(occupancyMask, Notation::h7);
+  BitUtil::set_bit(occupancyMask, Notation::b1);
+  BitUtil::set_bit(occupancyMask, Notation::a6);
+  BitUtil::set_bit(occupancyMask, Notation::f1);
   ans = 0ULL;
-  pred = get_bishop_attack(d3, occupancyMask, chess.bishopMasks,
+  pred = get_bishop_attack(Notation::d3, occupancyMask, chess.bishopMasks,
                            chess.bishopAttacks, chess.bishopMagics);
-  moves = {a6, b5, c4, c2, b1, e2, f1, e4, f5, g6, h7};
+  moves = {Notation::a6, Notation::b5, Notation::c4, Notation::c2, Notation::b1,
+           Notation::e2, Notation::f1, Notation::e4, Notation::f5,
+           Notation::g6, Notation::h7};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 
   occupancyMask = 0ULL;
-  set_bit(occupancyMask, g6);
-  set_bit(occupancyMask, b1);
-  set_bit(occupancyMask, a6);
-  set_bit(occupancyMask, f1);
+  BitUtil::set_bit(occupancyMask, Notation::g6);
+  BitUtil::set_bit(occupancyMask, Notation::b1);
+  BitUtil::set_bit(occupancyMask, Notation::a6);
+  BitUtil::set_bit(occupancyMask, Notation::f1);
   ans = 0ULL;
-  pred = get_bishop_attack(d3, occupancyMask, chess.bishopMasks,
+  pred = get_bishop_attack(Notation::d3, occupancyMask, chess.bishopMasks,
                            chess.bishopAttacks, chess.bishopMagics);
-  moves = {a6, b5, c4, c2, b1, e2, f1, e4, f5, g6};
+  moves = {Notation::a6, Notation::b5, Notation::c4, Notation::c2, Notation::b1,
+           Notation::e2, Notation::f1, Notation::e4, Notation::f5,
+           Notation::g6};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 }
 
 TEST(PieceTest, RookTest) {
-  Game chess(rookMagics, bishopMagics);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   ull occupancyMask = 0ULL;
-  set_bit(occupancyMask, a5);
-  set_bit(occupancyMask, g7);
-  set_bit(occupancyMask, g3);
-  ull pred = get_rook_attack(g5, occupancyMask, chess.rookMasks,
+  BitUtil::set_bit(occupancyMask, Notation::a5);
+  BitUtil::set_bit(occupancyMask, Notation::g7);
+  BitUtil::set_bit(occupancyMask, Notation::g3);
+  ull pred = get_rook_attack(Notation::g5, occupancyMask, chess.rookMasks,
                              chess.rookAttacks, chess.rookMagics);
   ull ans = 0ULL;
-  std::vector<int> moves{a5, b5, c5, d5, e5, f5, h5, g6, g7, g4, g3};
+  std::vector<int> moves{Notation::a5, Notation::b5, Notation::c5, Notation::d5,
+                         Notation::e5, Notation::f5, Notation::h5,
+                         Notation::g6, Notation::g7, Notation::g4,
+                         Notation::g3};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 
   occupancyMask = 0ULL;
   ans = 0ULL;
-  pred = get_rook_attack(a1, occupancyMask, chess.rookMasks, chess.rookAttacks,
-                         chess.rookMagics);
-  moves = {a2, a3, a4, a5, a6, a7, a8, b1, c1, d1, e1, f1, g1, h1};
+  pred = get_rook_attack(Notation::a1, occupancyMask, chess.rookMasks,
+                         chess.rookAttacks, chess.rookMagics);
+  moves = {Notation::a2, Notation::a3, Notation::a4, Notation::a5, Notation::a6,
+           Notation::a7, Notation::a8, Notation::b1, Notation::c1, Notation::d1,
+           Notation::e1, Notation::f1, Notation::g1, Notation::h1};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 
   occupancyMask = 0ULL;
   ans = 0ULL;
-  set_bit(occupancyMask, d8);
-  set_bit(occupancyMask, b4);
-  set_bit(occupancyMask, f4);
-  set_bit(occupancyMask, d2);
-  pred = get_rook_attack(d4, occupancyMask, chess.rookMasks, chess.rookAttacks,
-                         chess.rookMagics);
-  moves = {b4, c4, d5, d6, d7, d8, e4, f4, d3, d2};
+  BitUtil::set_bit(occupancyMask, Notation::d8);
+  BitUtil::set_bit(occupancyMask, Notation::b4);
+  BitUtil::set_bit(occupancyMask, Notation::f4);
+  BitUtil::set_bit(occupancyMask, Notation::d2);
+  pred = get_rook_attack(Notation::d4, occupancyMask, chess.rookMasks,
+                         chess.rookAttacks, chess.rookMagics);
+  moves = {Notation::b4, Notation::c4, Notation::d5, Notation::d6, Notation::d7,
+           Notation::d8, Notation::e4, Notation::f4, Notation::d3,
+           Notation::d2};
   for (int move : moves)
-    set_bit(ans, move);
+    BitUtil::set_bit(ans, move);
   ASSERT_EQ(ans, pred);
 }

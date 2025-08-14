@@ -1,12 +1,13 @@
-#include "../bitboard/bitboard.h"
-#include "../utility/boardnotation.h"
-#include "../utility/macros.h"
-#include "../utility/parsefen.h"
+#include "bitboard/bitboard.h"
+#include "utility/boardnotation.h"
+#include "utility/macros.h"
+#include "utility/parsefen.h"
 #include <gtest/gtest.h>
 #include <string>
+#include <algorithm>
 
 TEST(generateMoves, trickyPositionWhite) {
-  Game chess(rookMagics, bishopMagics);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   std::string curPosition =
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq b5 0 1";
   parse_fen(chess, curPosition);
@@ -15,58 +16,106 @@ TEST(generateMoves, trickyPositionWhite) {
   auto moveList = chess.generate_moves();
 
   std::vector<int> masterMovesList;
-  masterMovesList.push_back(encode_move(a2, a3, P, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a2, a4, P, 0, 0, 0, 1, 0));
-  masterMovesList.push_back(encode_move(b2, b3, P, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d5, d6, P, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d5, e6, P, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(g2, g3, P, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(g2, g4, P, 0, 0, 0, 1, 0));
-  masterMovesList.push_back(encode_move(g2, h3, P, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(c3, a4, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(c3, b5, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(c3, b1, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(c3, d1, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e5, c6, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e5, c4, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e5, d3, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e5, g4, N, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e5, g6, N, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(e5, f7, N, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(e5, d7, N, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a2, Notation::a3,
+                                                 Notation::P, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a2, Notation::a4,
+                                                 Notation::P, 0, 0, 0, 1, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b2, Notation::b3,
+                                                 Notation::P, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d5, Notation::d6,
+                                                 Notation::P, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d5, Notation::e6,
+                                                 Notation::P, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g2, Notation::g3,
+                                                 Notation::P, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g2, Notation::g4,
+                                                 Notation::P, 0, 0, 0, 1, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g2, Notation::h3,
+                                                 Notation::P, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c3, Notation::a4,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c3, Notation::b5,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c3, Notation::b1,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c3, Notation::d1,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::c6,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::c4,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::d3,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::g4,
+                                                 Notation::N, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::g6,
+                                                 Notation::N, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::f7,
+                                                 Notation::N, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e5, Notation::d7,
+                                                 Notation::N, 0, 0, 1, 0, 0));
 
-  masterMovesList.push_back(encode_move(d2, c1, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d2, e3, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d2, f4, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d2, g5, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(d2, h6, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, f1, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, d1, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, d3, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, c4, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, b5, B, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e2, a6, B, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(a1, b1, R, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a1, c1, R, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a1, d1, R, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h1, g1, R, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h1, f1, R, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, d3, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, e3, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, g3, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, g4, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, f4, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, f5, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, h5, Q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f3, h3, Q, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(f3, f6, Q, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(e1, f1, K, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e1, d1, K, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e1, g1, K, 0, 1, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e1, c1, K, 0, 1, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d2, Notation::c1,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d2, Notation::e3,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d2, Notation::f4,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d2, Notation::g5,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d2, Notation::h6,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::f1,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::d1,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::d3,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::c4,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::b5,
+                                                 Notation::B, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e2, Notation::a6,
+                                                 Notation::B, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a1, Notation::b1,
+                                                 Notation::R, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a1, Notation::c1,
+                                                 Notation::R, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a1, Notation::d1,
+                                                 Notation::R, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h1, Notation::g1,
+                                                 Notation::R, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h1, Notation::f1,
+                                                 Notation::R, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::d3,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::e3,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::g3,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::g4,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::f4,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::f5,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::h5,
+                                                 Notation::Q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::h3,
+                                                 Notation::Q, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f3, Notation::f6,
+                                                 Notation::Q, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e1, Notation::f1,
+                                                 Notation::K, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e1, Notation::d1,
+                                                 Notation::K, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e1, Notation::g1,
+                                                 Notation::K, 0, 1, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e1, Notation::c1,
+                                                 Notation::K, 0, 1, 0, 0, 0));
 
-  sort(moveList.begin(), moveList.end());
-  sort(masterMovesList.begin(), masterMovesList.end());
+  std::sort(moveList.begin(), moveList.end());
+  std::sort(masterMovesList.begin(), masterMovesList.end());
 
   ASSERT_EQ(moveList.size(), masterMovesList.size());
   for (ull i = 0; i < moveList.size(); i++) {
@@ -75,7 +124,7 @@ TEST(generateMoves, trickyPositionWhite) {
 }
 
 TEST(generateMoves, trickyPositionBlack) {
-  Game chess(rookMagics, bishopMagics);
+  Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   std::string curPosition =
       "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq b5 0 1";
   parse_fen(chess, curPosition);
@@ -84,53 +133,96 @@ TEST(generateMoves, trickyPositionBlack) {
   auto moveList = chess.generate_moves();
 
   std::vector<int> masterMovesList;
-  masterMovesList.push_back(encode_move(b4, b3, p, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(b4, c3, p, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(c7, c6, p, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(c7, c5, p, 0, 0, 0, 1, 0));
-  masterMovesList.push_back(encode_move(d7, d6, p, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e6, d5, p, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(g6, g5, p, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h3, g2, p, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(b6, a4, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(b6, c8, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(b6, c4, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f6, g8, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f6, h7, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f6, h5, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f6, g4, n, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(f6, e4, n, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(f6, d5, n, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b4, Notation::b3,
+                                                 Notation::p, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b4, Notation::c3,
+                                                 Notation::p, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c7, Notation::c6,
+                                                 Notation::p, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::c7, Notation::c5,
+                                                 Notation::p, 0, 0, 0, 1, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::d7, Notation::d6,
+                                                 Notation::p, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e6, Notation::d5,
+                                                 Notation::p, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g6, Notation::g5,
+                                                 Notation::p, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h3, Notation::g2,
+                                                 Notation::p, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b6, Notation::a4,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b6, Notation::c8,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b6, Notation::c4,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::g8,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::h7,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::h5,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::g4,
+                                                 Notation::n, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::e4,
+                                                 Notation::n, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::f6, Notation::d5,
+                                                 Notation::n, 0, 0, 1, 0, 0));
 
-  masterMovesList.push_back(encode_move(b6, d5, n, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(g7, h6, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(g7, f8, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, b7, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, c8, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, b5, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, c4, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, d3, b, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a6, e2, b, 0, 0, 1, 0, 0));
-  masterMovesList.push_back(encode_move(a8, b8, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a8, c8, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(a8, d8, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, f8, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, g8, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, h7, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, h6, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, h5, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(h8, h4, r, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e7, f8, q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e7, d8, q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e7, d6, q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e7, c5, q, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e8, d8, k, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e8, f8, k, 0, 0, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e8, g8, k, 0, 1, 0, 0, 0));
-  masterMovesList.push_back(encode_move(e8, c8, k, 0, 1, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::b6, Notation::d5,
+                                                 Notation::n, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g7, Notation::h6,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::g7, Notation::f8,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::b7,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::c8,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::b5,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::c4,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::d3,
+                                                 Notation::b, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a6, Notation::e2,
+                                                 Notation::b, 0, 0, 1, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a8, Notation::b8,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a8, Notation::c8,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::a8, Notation::d8,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::f8,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::g8,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::h7,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::h6,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::h5,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::h8, Notation::h4,
+                                                 Notation::r, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e7, Notation::f8,
+                                                 Notation::q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e7, Notation::d8,
+                                                 Notation::q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e7, Notation::d6,
+                                                 Notation::q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e7, Notation::c5,
+                                                 Notation::q, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e8, Notation::d8,
+                                                 Notation::k, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e8, Notation::f8,
+                                                 Notation::k, 0, 0, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e8, Notation::g8,
+                                                 Notation::k, 0, 1, 0, 0, 0));
+  masterMovesList.push_back(BitUtil::encode_move(Notation::e8, Notation::c8,
+                                                 Notation::k, 0, 1, 0, 0, 0));
 
-  sort(moveList.begin(), moveList.end());
-  sort(masterMovesList.begin(), masterMovesList.end());
+  std::sort(moveList.begin(), moveList.end());
+  std::sort(masterMovesList.begin(), masterMovesList.end());
   /*print_moves(moveList);*/
   /*print_moves(masterMovesList);*/
   ASSERT_EQ(moveList.size(), masterMovesList.size());
@@ -141,7 +233,7 @@ TEST(generateMoves, trickyPositionBlack) {
 
 TEST(generateMoves, promotionTest) {
   std::string promoPosition = "r3k3/1P6/8/1b3pP1/8/8/8/R3K2R w KQq f6 0 1";
-  Game game(rookMagics, bishopMagics);
+  Game game(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
   parse_fen(game, promoPosition);
   auto moveList = game.generate_moves();
   print_moves(moveList);

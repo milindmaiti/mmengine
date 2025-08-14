@@ -9,18 +9,20 @@ ull generate_rook_moves_fly(int square, ull mask) {
   int rank = (square >> 3);
   int file = (square % Constants::BD);
 
-  for (ull curRank = rank + 1; curRank <= Constants::BD - 1; curRank++) {
+  for (int curRank = rank + 1; curRank <= static_cast<int>(Constants::BD) - 1;
+       curRank++) {
     attacks |= (1ULL << ((curRank << 3) + file));
     if (mask & (1ULL << ((curRank << 3) + file)))
       break;
   }
 
-  for (ull curRank = rank - 1; curRank >= 0; curRank--) {
+  for (int curRank = rank - 1; curRank >= 0; curRank--) {
     attacks |= (1ULL << ((curRank << 3) + file));
     if (mask & (1ULL << ((curRank << 3) + file)))
       break;
   }
-  for (ull int curFile = file + 1; curFile <= Constants::BD - 1; curFile++) {
+  for (int curFile = file + 1; curFile <= static_cast<int>(Constants::BD) - 1;
+       curFile++) {
     attacks |= (1ULL << ((rank << 3) + curFile));
     if (mask & (1ULL << ((rank << 3) + curFile)))
       break;
@@ -45,14 +47,16 @@ ull mask_rook_attacks(int square) {
   int rank = (square >> 3);
   int file = (square % Constants::BD);
 
-  for (ull curRank = rank + 1; curRank < Constants::BD - 1; curRank++) {
+  for (int curRank = rank + 1; curRank < static_cast<int>(Constants::BD) - 1;
+       curRank++) {
     attacks |= (1ULL << ((curRank << 3) + file));
   }
 
-  for (ull int curRank = rank - 1; curRank > 0; curRank--) {
+  for (int curRank = rank - 1; curRank > 0; curRank--) {
     attacks |= (1ULL << ((curRank << 3) + file));
   }
-  for (ull int curFile = file + 1; curFile < Constants::BD - 1; curFile++) {
+  for (int curFile = file + 1; curFile < static_cast<int>(Constants::BD) - 1;
+       curFile++) {
     attacks |= (1ULL << ((rank << 3) + curFile));
   }
   for (int curFile = file - 1; curFile > 0; curFile--) {
