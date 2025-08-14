@@ -69,9 +69,8 @@ void parse_position(Game &game, std::string &command) {
   /*print_board(game);*/
 }
 
-// Refactor Method to use threads for move timing
 void parse_go(Game &game, std::string &command, Engine &engine) {
-  int depth = -1;
+  int depth = 100;
   size_t commandPtr = 0;
   // skip over the go keyword
   commandPtr += 3;
@@ -94,21 +93,24 @@ void parse_go(Game &game, std::string &command, Engine &engine) {
     readNum("winc", winc);
     readNum("binc", binc);
 
-    // TODO: Come up with more sophisticated time management mechanisms
-    // currently spending 2% of time on each move
-    // percentage of time to spend on a move
-    double timePercent = 0.02;
+    // from chessprogramming wiki, a competitive time management scheme is to
+    // allocate remainingTime / 20 + increment / 2 to each move
+    double remainingTimePercent = 0.05;
+    double incrementTimePercent = 0.50;
+
     depth = 100;
     std::chrono::milliseconds movetime;
     if (game.side == Notation::white) {
-      movetime = std::chrono::milliseconds((int)(wtime * timePercent));
+      movetime = std::chrono::milliseconds(
+          (int)(wtime * remainingTimePercent + winc * incrementTimePercent));
     } else {
-      movetime = std::chrono::milliseconds((int)(btime * timePercent));
+      movetime = std::chrono::milliseconds(
+          (int)(btime * remainingTimePercent + binc * incrementTimePercent));
     }
 
-    auto stopFlag = std::make_shared<std::atomic<bool>>(false);
-    engine.stopFlag = stopFlag;
-    std::thread timerThread(threadTimer, movetime, stopFlag);
+    auto stopFlag = std::atomic<bool>(false);
+    engine.stopFlag = &stopFlag;
+    std::thread timerThread(threadTimer, movetime, &stopFlag);
     std::thread searchThread(&Engine::searchPosition, &engine, std::ref(game),
                              depth, std::ref(ret));
     // once timerThread returns it sets stopFlag to true, stopping search thread
@@ -133,9 +135,9 @@ void parse_go(Game &game, std::string &command, Engine &engine) {
         stoi(command.substr(commandPtr, command.size() - commandPtr)));
     // a shared ptr to a boolean flag with which the timer tells the search
     // thread to stop
-    auto stopFlag = std::make_shared<std::atomic<bool>>(false);
-    engine.stopFlag = stopFlag;
-    std::thread timerThread(threadTimer, movetime, stopFlag);
+    auto stopFlag = std::atomic<bool>(false);
+    engine.stopFlag = &stopFlag;
+    std::thread timerThread(threadTimer, movetime, &stopFlag);
     std::thread searchThread(&Engine::searchPosition, &engine, std::ref(game),
                              depth, std::ref(ret));
     // once timerThread returns it sets stopFlag to true, stopping search thread

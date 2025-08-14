@@ -5,4 +5,4 @@
 ull getMilliseconds();
 
 void threadTimer(std::chrono::milliseconds msec,
-                 std::shared_ptr<std::atomic<bool>> timerFlag);
+                 std::atomic<bool>* timerFlag);

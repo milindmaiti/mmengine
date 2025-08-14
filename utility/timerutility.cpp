@@ -19,7 +19,7 @@ ull getMilliseconds() {
 
 // sets a thread to sleep for time milliseconds
 void threadTimer(std::chrono::milliseconds msec,
-                 std::shared_ptr<std::atomic<bool>> timerFlag) {
+                 std::atomic<bool>* timerFlag) {
   std::this_thread::sleep_for(msec);
   *timerFlag = true;
 }

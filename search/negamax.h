@@ -25,7 +25,7 @@ public:
   int windowSize;
   bool followPv;
   bool nullVar;
-  std::shared_ptr<std::atomic<bool>> stopFlag;
+  std::atomic<bool>* stopFlag;
   vector<vector<int>> killerMoves;
   vector<vector<int>> historyMoves;
   vector<vector<int>> pvTable;
