@@ -1,6 +1,7 @@
 #include "../utility/macros.h"
 #include <chrono>
 #include <memory>
+#include <atomic>
 #include <thread>
 ull getMilliseconds() {
   // Get the current time from the system clock
