@@ -1,10 +1,13 @@
 #include "negamax.h"
 #include "bitboard/bitboard.h"
 #include "evaluation.h"
+#include "uci/parsecommands.h"
+#include "utility/boardnotation.h"
 #include "utility/evaluationtables.h"
 #include "utility/macros.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 using std::vector;
@@ -22,7 +25,7 @@ Engine::Engine(int mxdepth, int killernum, int mxhist, int fullmoves,
       pvTable(this->mxDepth, vector<int>(this->mxDepth)) {}
 int Engine::evaluateMove(int move, Game &game) {
   // give largest bonus to best variation found in previous search
-  if (this->followPv && move == this->pvTable[0][ply]) {
+  if (this->followPv && move == this->pvTable[0][this->ply]) {
     return 20000;
   }
   if (BitUtil::decode_capture(move)) {
@@ -46,7 +49,7 @@ int Engine::evaluateMove(int move, Game &game) {
     return mvvtable[BitUtil::decode_piece(move)][cap] +
            MoveBonus::CAPTURE_MOVE_BONUS;
   } else {
-    if (ply < mxDepth && this->killerMoves[0][ply] == move)
+    if (this->ply < mxDepth && this->killerMoves[0][this->ply] == move)
       return MoveBonus::KILLER_MOVE_BONUS;
     else
       return historyMoves[BitUtil::decode_piece(move)]
@@ -77,8 +80,6 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
   nodes++;
   int eval = evaluatePosition(game);
   alpha = std::max(alpha, eval);
-  if (alpha >= beta)
-    return alpha;
   // TODO: make separate capture move generator to cut down constant time
   auto moveList = game.generate_moves();
 
@@ -90,14 +91,13 @@ int Engine::quiesenceSearch(Game &game, int alpha, int beta, ull &nodes) {
   for (int move : moveList) {
     if (!game.makeMove(move, true))
       continue;
-
-    ply++;
+    this->ply++;
     int evaluation = -quiesenceSearch(game, -beta, -alpha, nodes);
-    ply--;
+    this->ply--;
     alpha = std::max(alpha, evaluation);
+    game.restoreState(currentPosition);
     if (alpha >= beta)
       return alpha;
-    game.restoreState(currentPosition);
   }
   return alpha;
 }
@@ -189,7 +189,7 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
 
   // if king is in check increase depth since it is very possible to get mated
   // if depth isn't increased
-  if (inCheck && ply < mxDepth - depth)
+  if (inCheck && this->ply < mxDepth - depth)
     depth++;
   int numMoves = 0;
   // copy the follow pv flag because we need to reset it after each move is
@@ -197,13 +197,13 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
   bool copyFollow = this->followPv;
   bool foundPv = false;
   for (int move : moveList) {
-    if (move != this->pvTable[0][ply]) {
+    if (move != this->pvTable[0][this->ply]) {
       this->followPv = false;
     }
     if (!game.makeMove(move, false)) {
       continue;
     }
-    ply++;
+    this->ply++;
     int evaluation;
     // Principal Variation Search
     // if we have found our principal variation move, do a null window search on
@@ -224,9 +224,10 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
 
         evaluation =
             -negamax(game, depth - 2, -alpha - 1, -alpha, initialDepth, nodes);
-      } else
+      } else {
         // a little hack to make sure the next if is executed
         evaluation = alpha + 1;
+      }
       if (evaluation > alpha) {
         // do a full depth search still with a zero window to test if a move is
         // better than alpha
@@ -240,19 +241,20 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
     } else
       evaluation =
           -negamax(game, depth - 1, -beta, -alpha, initialDepth, nodes);
-    ply--;
+    this->ply--;
     // fail-soft alpha-beta (returned value can be outside alpha beta cutoffs)
     if (evaluation > alpha) {
       alpha = evaluation;
       // update best move
       foundPv = true;
-      if (ply < (int)this->pvTable.size()) {
-        this->pvTable[ply][ply] = move;
-        for (int nextDepth = ply + 1;
+      if (this->ply < (int)this->pvTable.size()) {
+        this->pvTable[this->ply][this->ply] = move;
+        for (int nextDepth = this->ply + 1;
              nextDepth <= std::min(initialDepth, (int)this->pvTable.size());
              nextDepth++) {
 
-          this->pvTable[ply][nextDepth] = this->pvTable[ply + 1][nextDepth];
+          this->pvTable[this->ply][nextDepth] =
+              this->pvTable[this->ply + 1][nextDepth];
         }
       }
 
@@ -274,9 +276,9 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
       // sibling nodes
 
       if (BitUtil::decode_capture(move) == 0) {
-        if (ply < mxDepth) {
-          this->killerMoves[1][ply] = this->killerMoves[0][ply];
-          this->killerMoves[1][ply] = move;
+        if (this->ply < mxDepth) {
+          this->killerMoves[1][this->ply] = this->killerMoves[0][this->ply];
+          this->killerMoves[1][this->ply] = move;
         }
       }
       // huge bug fix, make sure to pop in all control paths
@@ -290,7 +292,7 @@ int Engine::negamax(Game &game, int depth, int alpha, int beta,
     // current side is checkmated (provide bonus for shorter checkmates)
     // depth variable decreases with each recursive call
     if (inCheck) {
-      return -INF + ply;
+      return -INF + this->ply;
     }
     // stalemate
     else
@@ -326,8 +328,7 @@ void Engine::searchPosition(Game &game, int depth, iterativeReturn &ret) {
   int alpha = -startMx;
   int beta = startMx;
   for (int curDepth = 1; curDepth <= depth; curDepth++) {
-    this->followPv = true;
-    this->nullVar = true;
+    this->resetBetweenSearchDepth();
     ull nodes = 0;
     int eval = negamax(game, curDepth, alpha, beta, curDepth, nodes);
     // aspiration windows (Doesn't seem to reduce nodes but need to do more
@@ -346,4 +347,10 @@ void Engine::searchPosition(Game &game, int depth, iterativeReturn &ret) {
       break;
     }
   }
+}
+
+void Engine::resetBetweenSearchDepth() {
+  this->followPv = true;
+  this->nullVar = false;
+  this->ply = 0;
 }

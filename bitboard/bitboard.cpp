@@ -200,7 +200,7 @@ inline void Game::loop_attacks(int sourceSquare, ull attackBitboard, int piece,
       if (isPawn) {
         if (targetSquare == this->enPassant)
           moveList.push_back(BitUtil::encode_move(sourceSquare, targetSquare,
-                                                  piece, 0, 0, 1, 0, 1));
+                                                  piece, 0, 0, 0, 0, 1));
       } else
         moveList.push_back(BitUtil::encode_move(sourceSquare, targetSquare,
                                                 piece, 0, 0, 0, 0, 0));

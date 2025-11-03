@@ -3,6 +3,7 @@
 #include <string>
 // Common sizes / expressions macros
 #define ull unsigned long long
+#define ll long long
 
 namespace Constants {
   constexpr ull BD = 8;

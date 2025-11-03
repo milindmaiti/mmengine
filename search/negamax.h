@@ -18,14 +18,15 @@ public:
   int killerNum;
   // current depth in game tree (inverse of depth variable in searchPosition)
   int ply;
-  // number of
+  // number of history moves to store
   int MXHISTORY;
+  // only first x moves are searched in full, rest have smaller depths
   int FullDepthMoves;
   int reductionLimit;
   int windowSize;
   bool followPv;
   bool nullVar;
-  std::atomic<bool>* stopFlag;
+  std::atomic<bool> *stopFlag;
   vector<vector<int>> killerMoves;
   vector<vector<int>> historyMoves;
   vector<vector<int>> pvTable;
@@ -35,6 +36,7 @@ public:
   int negamax(Game &game, int depth, int alpha, int beta, int initialDepth,
               ull &nodes);
   void searchPosition(Game &game, int depth, iterativeReturn &ret);
+  void resetBetweenSearchDepth();
   int quiesenceSearch(Game &game, int alpha, int beta, ull &nodes);
 };
 

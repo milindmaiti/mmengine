@@ -23,13 +23,13 @@ TEST(evaluatePieces, startPosition) {
 
 TEST(evaluatePieces, mateInOne) {
   Game chess(ArrayUtil::rookMagics, ArrayUtil::bishopMagics);
-  parse_fen(chess, ArrayUtil::startPosition);
-  ull eval = evaluatePosition(chess);
-  EXPECT_EQ(eval, 0ULL);
+  iterativeReturn ret;
+  Engine engine;
 
   std::string modifiedStart = "4k3/1Q6/3K4/8/8/8/8/8 w - - 0 1";
   parse_fen(chess, modifiedStart);
-  int bestMove;
-  negamaxDriver(chess, 1, bestMove);
+  engine.searchPosition(chess, 1, ret);
+
+  int bestMove = ret.pvs[0][0];
   EXPECT_EQ(moveToUciMove(bestMove), "b7e7");
 }

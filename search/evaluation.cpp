@@ -3,13 +3,13 @@
 #include "utility/macros.h"
 
 // should probably inline this later
-ull evaluatePosition(Game &game) {
-  ull evaluation = 0ULL;
+ll evaluatePosition(Game &game) {
+  ll evaluation = 0;
   for (int piece = Notation::P; piece <= Notation::k; piece++) {
     ull currentBitboard = game.pieceBitboards[piece];
     while (currentBitboard) {
       int curSquare = BitUtil::LSOneIndex(currentBitboard);
-      ArrayUtil::materialScores[piece];
+      evaluation += ArrayUtil::materialScores[piece];
 
       switch (piece) {
       case Notation::P:
